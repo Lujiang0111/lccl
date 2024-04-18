@@ -31,6 +31,9 @@
     <Filter Include="头文件\lccl\fmt">
       <UniqueIdentifier>{31e1539d-15de-4b90-8e01-7e2e7c8239cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\utils">
+      <UniqueIdentifier>{1430c158-18e3-488a-a202-2ebc79aae289}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\lccl.cpp">
@@ -169,6 +172,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\lccl\fmt\format-inl.h">
       <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\utils\file_inl.h">
+      <Filter>头文件\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

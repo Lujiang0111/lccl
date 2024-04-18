@@ -146,6 +146,7 @@
     <ClInclude Include="..\..\include\lccl\fmt\core.h" />
     <ClInclude Include="..\..\include\lccl\fmt\format-inl.h" />
     <ClInclude Include="..\..\include\lccl\fmt\format.h" />
+    <ClInclude Include="..\..\include\lccl\utils\file_inl.h" />
     <ClInclude Include="..\..\include\rapidjson\allocators.h" />
     <ClInclude Include="..\..\include\rapidjson\cursorstreamwrapper.h" />
     <ClInclude Include="..\..\include\rapidjson\document.h" />
