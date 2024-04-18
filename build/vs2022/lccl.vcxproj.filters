@@ -34,10 +34,28 @@
     <Filter Include="头文件\utils">
       <UniqueIdentifier>{1430c158-18e3-488a-a202-2ebc79aae289}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\bit">
+      <UniqueIdentifier>{2d9b42b8-2161-4945-a178-9b221491bef2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="内部文件">
+      <UniqueIdentifier>{0820771d-7331-4eb8-9372-92720dc7d13a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="内部文件\bit">
+      <UniqueIdentifier>{3f31ab33-6854-4536-8d34-45422498b168}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\lccl.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\bit\bit_reader.cpp">
+      <Filter>源文件\bit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\bit\bit_writer.cpp">
+      <Filter>源文件\bit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\bit\lccl_bit.cpp">
+      <Filter>源文件\bit</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +196,15 @@
     </ClInclude>
     <ClInclude Include="..\..\include\lccl\utils\json_inl.h">
       <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\bit.h">
+      <Filter>头文件\lccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\internal\bit\bit_reader.h">
+      <Filter>内部文件\bit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\internal\bit\bit_writer.h">
+      <Filter>内部文件\bit</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

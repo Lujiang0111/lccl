@@ -137,10 +137,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\bit\bit_reader.cpp" />
+    <ClCompile Include="..\..\src\bit\bit_writer.cpp" />
+    <ClCompile Include="..\..\src\bit\lccl_bit.cpp" />
     <ClCompile Include="..\..\src\lccl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\lccl.h" />
+    <ClInclude Include="..\..\include\lccl\bit.h" />
     <ClInclude Include="..\..\include\lccl\fmt.h" />
     <ClInclude Include="..\..\include\lccl\fmt\color.h" />
     <ClInclude Include="..\..\include\lccl\fmt\core.h" />
@@ -186,6 +190,8 @@
     <ClInclude Include="..\..\include\rapidjson\stringbuffer.h" />
     <ClInclude Include="..\..\include\rapidjson\uri.h" />
     <ClInclude Include="..\..\include\rapidjson\writer.h" />
+    <ClInclude Include="..\..\internal\bit\bit_reader.h" />
+    <ClInclude Include="..\..\internal\bit\bit_writer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
