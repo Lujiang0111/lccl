@@ -141,6 +141,7 @@
     <ClCompile Include="..\..\src\bit\bit_writer.cpp" />
     <ClCompile Include="..\..\src\bit\lccl_bit.cpp" />
     <ClCompile Include="..\..\src\lccl.cpp" />
+    <ClCompile Include="..\..\src\log\lib_log.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\lccl.h" />
@@ -150,6 +151,7 @@
     <ClInclude Include="..\..\include\lccl\fmt\core.h" />
     <ClInclude Include="..\..\include\lccl\fmt\format-inl.h" />
     <ClInclude Include="..\..\include\lccl\fmt\format.h" />
+    <ClInclude Include="..\..\include\lccl\log.h" />
     <ClInclude Include="..\..\include\lccl\utils\file_inl.h" />
     <ClInclude Include="..\..\include\lccl\utils\json_inl.h" />
     <ClInclude Include="..\..\include\rapidjson\allocators.h" />
@@ -192,6 +194,7 @@
     <ClInclude Include="..\..\include\rapidjson\writer.h" />
     <ClInclude Include="..\..\internal\bit\bit_reader.h" />
     <ClInclude Include="..\..\internal\bit\bit_writer.h" />
+    <ClInclude Include="..\..\internal\log\lib_log.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
