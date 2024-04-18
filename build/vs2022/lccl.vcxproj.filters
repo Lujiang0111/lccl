@@ -25,6 +25,12 @@
     <Filter Include="头文件\rapidjson\msinttypes">
       <UniqueIdentifier>{85b4e9be-715c-4947-8f1e-5b1541726617}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\lccl">
+      <UniqueIdentifier>{0019999d-4895-4f47-b863-d27d0610a3d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\lccl\fmt">
+      <UniqueIdentifier>{31e1539d-15de-4b90-8e01-7e2e7c8239cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\lccl.cpp">
@@ -148,6 +154,21 @@
     </ClInclude>
     <ClInclude Include="..\..\include\rapidjson\msinttypes\stdint.h">
       <Filter>头文件\rapidjson\msinttypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\fmt.h">
+      <Filter>头文件\lccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\fmt\color.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\fmt\core.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\fmt\format.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\fmt\format-inl.h">
+      <Filter>头文件\lccl\fmt</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

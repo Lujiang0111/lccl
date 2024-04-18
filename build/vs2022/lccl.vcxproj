@@ -141,6 +141,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\lccl.h" />
+    <ClInclude Include="..\..\include\lccl\fmt.h" />
+    <ClInclude Include="..\..\include\lccl\fmt\color.h" />
+    <ClInclude Include="..\..\include\lccl\fmt\core.h" />
+    <ClInclude Include="..\..\include\lccl\fmt\format-inl.h" />
+    <ClInclude Include="..\..\include\lccl\fmt\format.h" />
     <ClInclude Include="..\..\include\rapidjson\allocators.h" />
     <ClInclude Include="..\..\include\rapidjson\cursorstreamwrapper.h" />
     <ClInclude Include="..\..\include\rapidjson\document.h" />
