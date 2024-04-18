@@ -176,5 +176,8 @@
     <ClInclude Include="..\..\include\lccl\utils\file_inl.h">
       <Filter>头文件\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\lccl\utils\json_inl.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
