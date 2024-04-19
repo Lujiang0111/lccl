@@ -4,7 +4,7 @@
 #include "lccl/fmt.h"
 #include "test_fmt.h"
 
-void TestFmt(int argc, char **argv)
+bool TestFmt(int argc, char **argv)
 {
     std::vector<std::string> ans;
 
@@ -15,4 +15,6 @@ void TestFmt(int argc, char **argv)
     {
         std::cout << i << ": " << ans[i] << std::endl;
     }
+
+    return true;
 }

@@ -112,6 +112,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\..\internal;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>LCCL_API_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,6 +129,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\..\internal;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>LCCL_API_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,12 +142,17 @@
     <ClCompile Include="..\..\src\bit\bit_reader.cpp" />
     <ClCompile Include="..\..\src\bit\bit_writer.cpp" />
     <ClCompile Include="..\..\src\bit\lccl_bit.cpp" />
+    <ClCompile Include="..\..\src\file\file_info.cpp" />
+    <ClCompile Include="..\..\src\file\file_os.cpp" />
+    <ClCompile Include="..\..\src\file\os\file_linux.cpp" />
+    <ClCompile Include="..\..\src\file\os\file_windows.cpp" />
     <ClCompile Include="..\..\src\lccl.cpp" />
     <ClCompile Include="..\..\src\log\lib_log.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\lccl.h" />
     <ClInclude Include="..\..\include\lccl\bit.h" />
+    <ClInclude Include="..\..\include\lccl\file.h" />
     <ClInclude Include="..\..\include\lccl\fmt.h" />
     <ClInclude Include="..\..\include\lccl\fmt\color.h" />
     <ClInclude Include="..\..\include\lccl\fmt\core.h" />
@@ -194,6 +201,8 @@
     <ClInclude Include="..\..\include\rapidjson\writer.h" />
     <ClInclude Include="..\..\internal\bit\bit_reader.h" />
     <ClInclude Include="..\..\internal\bit\bit_writer.h" />
+    <ClInclude Include="..\..\internal\file\file_info.h" />
+    <ClInclude Include="..\..\internal\file\file_os.h" />
     <ClInclude Include="..\..\internal\log\lib_log.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

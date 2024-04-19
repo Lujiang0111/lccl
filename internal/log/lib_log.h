@@ -21,6 +21,6 @@ inline void LogFmt(Levels level, fmt::format_string<Args...> fmt, Args &&... arg
 LCCL_LOG_END_NAMESPACE
 LCCL_END_NAMESPACE
 
-#define LIB_LOG(level, fmt, ...) lpcom::log::LogFmt(level, fmt, ##__VA_ARGS__);
+#define LIB_LOG(level, fmt, ...) lccl::log::LogFmt(level, fmt, ##__VA_ARGS__);
 
 #endif // !LCCL_INTERNAL_LOG_LIB_LOG_H_

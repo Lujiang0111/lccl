@@ -61,7 +61,7 @@ inline std::string OsPathJoin(const std::string &path)
 template<typename... Args>
 inline std::string OsPathJoin(const std::string &first, const Args&... args)
 {
-    return AdjustOsPath(first) + std::to_string(kDirSep) + OsPathJoin(args...);
+    return AdjustOsPath(first) + kDirSep + OsPathJoin(args...);
 }
 
 LCCL_END_NAMESPACE

@@ -49,6 +49,15 @@
     <Filter Include="源文件\log">
       <UniqueIdentifier>{1e09f06f-5621-4a55-b600-c20c185e245e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="内部文件\file">
+      <UniqueIdentifier>{32bc996c-49cf-47df-86b1-ed0f5abd31db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\file">
+      <UniqueIdentifier>{f9dfdf03-c75f-42ea-9748-e028fc8f0234}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\file\os">
+      <UniqueIdentifier>{01fa45c7-f133-4f7b-a0a8-94ce828fc64d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\lccl.cpp">
@@ -65,6 +74,18 @@
     </ClCompile>
     <ClCompile Include="..\..\src\log\lib_log.cpp">
       <Filter>源文件\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\file_info.cpp">
+      <Filter>源文件\file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\file_os.cpp">
+      <Filter>源文件\file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\os\file_linux.cpp">
+      <Filter>源文件\file\os</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\file\os\file_windows.cpp">
+      <Filter>源文件\file\os</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -220,6 +241,15 @@
     </ClInclude>
     <ClInclude Include="..\..\internal\log\lib_log.h">
       <Filter>内部文件\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\file.h">
+      <Filter>头文件\lccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\internal\file\file_info.h">
+      <Filter>内部文件\file</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\internal\file\file_os.h">
+      <Filter>内部文件\file</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

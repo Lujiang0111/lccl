@@ -1,10 +1,12 @@
 ﻿#include <cstring>
 #include <iostream>
+#include "test_file.h"
 #include "test_fmt.h"
 
 enum class TestTypes
 {
-    kTestFmt = 0,
+    kTestFile,
+    kTestFmt,
 };
 
 int main(int argc, char **argv)
@@ -14,15 +16,24 @@ int main(int argc, char **argv)
         std::cerr << "too less args";
     }
 
+    bool ret = true;
     TestTypes test_type = static_cast<TestTypes>(atoi(argv[1]));
     switch (test_type)
     {
+    case TestTypes::kTestFile:
+        ret = TestFile(argc, argv);
+        break;
     case TestTypes::kTestFmt:
-        TestFmt(argc, argv);
+        ret = TestFmt(argc, argv);
         break;
     default:
+        ret = false;
         break;
     }
     
+    if (!ret)
+    {
+        return -1;
+    }
     return 0;
 }
