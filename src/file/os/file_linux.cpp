@@ -52,8 +52,12 @@ std::shared_ptr<FileInfo> FileInfo::FindFileInfo(const std::string &file_name)
             {
                 std::string full_name = OsPathJoin(file_name, p_dirent->d_name);
                 auto child = FindFileInfo(full_name);
-                file_info->total_size_ += child->total_size_;
-                file_info->childs_.push_back(std::move(child));
+
+                if (child)
+                {
+                    file_info->total_size_ += child->total_size_;
+                    file_info->childs_.push_back(std::move(child));
+                }
             }
         }
         closedir(dir);
