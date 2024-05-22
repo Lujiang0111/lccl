@@ -15,7 +15,7 @@ constexpr char kDirSep = kDirSeps[0];
 constexpr char kDirSep = kDirSeps[1];
 #endif
 
-inline std::string AdjustOsPath(const std::string &path)
+inline std::string AdjustPath(const std::string &path, char sep_char = kDirSep)
 {
     std::string result;
     bool b_sep = false;
@@ -36,7 +36,7 @@ inline std::string AdjustOsPath(const std::string &path)
         {
             if (!b_prev_sep)
             {
-                result.push_back(kDirSep);
+                result.push_back(sep_char);
             }
         }
         else
@@ -55,13 +55,13 @@ inline std::string AdjustOsPath(const std::string &path)
 
 inline std::string OsPathJoin(const std::string &path)
 {
-    return AdjustOsPath(path);
+    return AdjustPath(path);
 }
 
 template<typename... Args>
 inline std::string OsPathJoin(const std::string &first, const Args&... args)
 {
-    return AdjustOsPath(first) + kDirSep + OsPathJoin(args...);
+    return AdjustPath(first) + kDirSep + OsPathJoin(args...);
 }
 
 LCCL_END_NAMESPACE
