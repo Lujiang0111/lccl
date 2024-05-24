@@ -5,6 +5,7 @@
 #define FMT_HEADER_ONLY
 #endif
 
+#include "lccl/fmt/chrono.h"
 #include "lccl/fmt/color.h"
 #include "lccl/fmt/core.h"
 #include "lccl/fmt/format.h"

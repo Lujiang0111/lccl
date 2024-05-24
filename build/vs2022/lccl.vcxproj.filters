@@ -251,5 +251,11 @@
     <ClInclude Include="..\..\internal\file\file_os.h">
       <Filter>内部文件\file</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\lccl\fmt\chrono.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\fmt\ostream.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

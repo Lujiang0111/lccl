@@ -154,10 +154,12 @@
     <ClInclude Include="..\..\include\lccl\bit.h" />
     <ClInclude Include="..\..\include\lccl\file.h" />
     <ClInclude Include="..\..\include\lccl\fmt.h" />
+    <ClInclude Include="..\..\include\lccl\fmt\chrono.h" />
     <ClInclude Include="..\..\include\lccl\fmt\color.h" />
     <ClInclude Include="..\..\include\lccl\fmt\core.h" />
     <ClInclude Include="..\..\include\lccl\fmt\format-inl.h" />
     <ClInclude Include="..\..\include\lccl\fmt\format.h" />
+    <ClInclude Include="..\..\include\lccl\fmt\ostream.h" />
     <ClInclude Include="..\..\include\lccl\log.h" />
     <ClInclude Include="..\..\include\lccl\utils\file_inl.h" />
     <ClInclude Include="..\..\include\lccl\utils\json_inl.h" />
