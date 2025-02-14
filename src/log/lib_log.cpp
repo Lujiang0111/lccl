@@ -33,7 +33,7 @@ void SetLibLogCallback(void (*cb)(Levels level, const char *content, size_t len)
     lib_log_cb = (cb) ? cb : DefaultLogCallback;
 }
 
-void LogContent(Levels level, const char *content, size_t len)
+void LibLogContent(Levels level, const char *content, size_t len)
 {
     lib_log_cb(level, content, len);
 }
