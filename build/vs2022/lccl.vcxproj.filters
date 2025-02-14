@@ -34,14 +34,8 @@
     <Filter Include="头文件\utils">
       <UniqueIdentifier>{1430c158-18e3-488a-a202-2ebc79aae289}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\bit">
-      <UniqueIdentifier>{2d9b42b8-2161-4945-a178-9b221491bef2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="内部文件">
       <UniqueIdentifier>{0820771d-7331-4eb8-9372-92720dc7d13a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="内部文件\bit">
-      <UniqueIdentifier>{3f31ab33-6854-4536-8d34-45422498b168}</UniqueIdentifier>
     </Filter>
     <Filter Include="内部文件\log">
       <UniqueIdentifier>{594bda74-4d45-43fa-bc43-7ece8e6a0f69}</UniqueIdentifier>
@@ -58,19 +52,13 @@
     <Filter Include="源文件\file\os">
       <UniqueIdentifier>{01fa45c7-f133-4f7b-a0a8-94ce828fc64d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\lccl\bit">
+      <UniqueIdentifier>{88d57da5-8646-4527-9eb9-8bafc0607714}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\lccl.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\bit\bit_reader.cpp">
-      <Filter>源文件\bit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\bit\bit_writer.cpp">
-      <Filter>源文件\bit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\bit\lccl_bit.cpp">
-      <Filter>源文件\bit</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\log\lib_log.cpp">
       <Filter>源文件\log</Filter>
@@ -227,15 +215,6 @@
     <ClInclude Include="..\..\include\lccl\utils\json_inl.h">
       <Filter>头文件\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\lccl\bit.h">
-      <Filter>头文件\lccl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\internal\bit\bit_reader.h">
-      <Filter>内部文件\bit</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\internal\bit\bit_writer.h">
-      <Filter>内部文件\bit</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\lccl\log.h">
       <Filter>头文件\lccl</Filter>
     </ClInclude>
@@ -256,6 +235,18 @@
     </ClInclude>
     <ClInclude Include="..\..\include\lccl\fmt\ostream.h">
       <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\bit\defines.h">
+      <Filter>头文件\lccl\bit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\bit\reader.h">
+      <Filter>头文件\lccl\bit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\bit\writer.h">
+      <Filter>头文件\lccl\bit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\bit.h">
+      <Filter>头文件\lccl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
