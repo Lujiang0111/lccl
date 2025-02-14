@@ -1,4 +1,4 @@
-﻿#include "lccl/utils/file_inl.h"
+﻿#include "lccl/utils/path.h"
 #include "file/file_info.h"
 #include "log/lib_log.h"
 
@@ -23,9 +23,9 @@ const char *FileInfo::GetName() const
     return name_.c_str();
 }
 
-const char *FileInfo::GetRelativePath() const
+const char *FileInfo::GetRelativeName() const
 {
-    return relative_path_.c_str();
+    return relative_name_.c_str();
 }
 
 FileModes FileInfo::GetFileMode() const

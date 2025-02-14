@@ -145,6 +145,8 @@
     <ClCompile Include="..\..\src\file\os\file_windows.cpp" />
     <ClCompile Include="..\..\src\lccl.cpp" />
     <ClCompile Include="..\..\src\log\lib_log.cpp" />
+    <ClCompile Include="..\..\src\log\logger.cpp" />
+    <ClCompile Include="..\..\src\log\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\lccl.h" />
@@ -161,8 +163,9 @@
     <ClInclude Include="..\..\include\lccl\fmt\format.h" />
     <ClInclude Include="..\..\include\lccl\fmt\ostream.h" />
     <ClInclude Include="..\..\include\lccl\log.h" />
-    <ClInclude Include="..\..\include\lccl\utils\file_inl.h" />
-    <ClInclude Include="..\..\include\lccl\utils\json_inl.h" />
+    <ClInclude Include="..\..\include\lccl\utils\json.h" />
+    <ClInclude Include="..\..\include\lccl\utils\path.h" />
+    <ClInclude Include="..\..\include\lccl\utils\ring_buffer.h" />
     <ClInclude Include="..\..\include\rapidjson\allocators.h" />
     <ClInclude Include="..\..\include\rapidjson\cursorstreamwrapper.h" />
     <ClInclude Include="..\..\include\rapidjson\document.h" />
@@ -204,6 +207,8 @@
     <ClInclude Include="..\..\internal\file\file_info.h" />
     <ClInclude Include="..\..\internal\file\file_os.h" />
     <ClInclude Include="..\..\internal\log\lib_log.h" />
+    <ClInclude Include="..\..\internal\log\logger.h" />
+    <ClInclude Include="..\..\internal\log\utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

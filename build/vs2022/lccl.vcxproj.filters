@@ -75,6 +75,12 @@
     <ClCompile Include="..\..\src\file\os\file_windows.cpp">
       <Filter>源文件\file\os</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\log\logger.cpp">
+      <Filter>源文件\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\log\utils.cpp">
+      <Filter>源文件\log</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\lccl.h">
@@ -209,12 +215,6 @@
     <ClInclude Include="..\..\include\lccl\fmt\format-inl.h">
       <Filter>头文件\lccl\fmt</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\lccl\utils\file_inl.h">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\lccl\utils\json_inl.h">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\lccl\log.h">
       <Filter>头文件\lccl</Filter>
     </ClInclude>
@@ -247,6 +247,21 @@
     </ClInclude>
     <ClInclude Include="..\..\include\lccl\bit.h">
       <Filter>头文件\lccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\internal\log\logger.h">
+      <Filter>内部文件\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\utils\json.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\utils\path.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\lccl\utils\ring_buffer.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\internal\log\utils.h">
+      <Filter>内部文件\log</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

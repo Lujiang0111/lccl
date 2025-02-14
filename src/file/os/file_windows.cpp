@@ -2,7 +2,7 @@
 
 #include <windows.h>
 #include <direct.h>
-#include "lccl/utils/file_inl.h"
+#include "lccl/utils/path.h"
 #include "file/file_info.h"
 #include "log/lib_log.h"
 
@@ -20,7 +20,7 @@ std::shared_ptr<FileInfo> FileInfo::FindFileInfo(const std::string &file_name)
 
     std::shared_ptr<FileInfo> file_info = std::make_shared<FileInfo>();
     file_info->name_ = ffd.cFileName;
-    file_info->relative_path_ = file_name;
+    file_info->relative_name_ = file_name;
     file_info->total_size_ = (static_cast<size_t>(ffd.nFileSizeHigh) << 32) | static_cast<size_t>(ffd.nFileSizeLow);
 
     uint64_t total_us = ((static_cast<uint64_t>(ffd.ftLastWriteTime.dwHighDateTime) << 32) |
@@ -45,7 +45,7 @@ void FileInfo::FindChildFileInfo(FileInfo *parent)
     Prepare string for use with FindFile functions.First, copy the
     string to a buffer, then append '\*' to the directory name.
     */
-    std::string search_name = parent->relative_path_ + "\\*";
+    std::string search_name = parent->relative_name_ + "\\*";
 
     // Find the first file in the directory.
     WIN32_FIND_DATAA ffd;
@@ -62,7 +62,7 @@ void FileInfo::FindChildFileInfo(FileInfo *parent)
         {
             std::shared_ptr<FileInfo> file_info = std::make_shared<FileInfo>();
             file_info->name_ = ffd.cFileName;
-            file_info->relative_path_ = OsPathJoin(parent->relative_path_, file_info->name_);
+            file_info->relative_name_ = OsPathJoin(parent->relative_name_, file_info->name_);
             file_info->total_size_ = (static_cast<size_t>(ffd.nFileSizeHigh) << 32) | static_cast<size_t>(ffd.nFileSizeLow);
 
             uint64_t total_us = ((static_cast<uint64_t>(ffd.ftLastWriteTime.dwHighDateTime) << 32) |

@@ -1,8 +1,6 @@
 ﻿#ifndef LCCL_INTERNAL_LOG_LIB_LOG_H_
 #define LCCL_INTERNAL_LOG_LIB_LOG_H_
 
-#include <string>
-#include <vector>
 #include "lccl/log.h"
 
 LCCL_BEGIN_NAMESPACE

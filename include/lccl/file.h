@@ -32,7 +32,7 @@ public:
     virtual ~IFileInfo() = default;
 
     virtual const char *GetName() const = 0;
-    virtual const char *GetRelativePath() const = 0;
+    virtual const char *GetRelativeName() const = 0;
     virtual FileModes GetFileMode() const = 0;
     virtual size_t GetTotalSize() const = 0;
     virtual int64_t GetModifyTimestamp() const = 0;

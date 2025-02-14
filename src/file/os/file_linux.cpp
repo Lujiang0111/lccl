@@ -30,7 +30,7 @@ std::shared_ptr<FileInfo> FileInfo::FindFileInfo(const std::string &file_name)
         file_info->name_ = file_name;
     }
 
-    file_info->relative_path_ = file_name;
+    file_info->relative_name_ = file_name;
     file_info->total_size_ = file_stat.st_size;
     file_info->modify_timestamp_ = file_stat.st_ctime;
 

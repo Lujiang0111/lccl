@@ -18,7 +18,7 @@ public:
     virtual ~FileInfo();
 
     virtual const char *GetName() const;
-    virtual const char *GetRelativePath() const;
+    virtual const char *GetRelativeName() const;
     virtual FileModes GetFileMode() const;
     virtual size_t GetTotalSize() const;
     virtual int64_t GetModifyTimestamp() const;
@@ -38,7 +38,7 @@ private:
 
 private:
     std::string name_;
-    std::string relative_path_;
+    std::string relative_name_;
     size_t total_size_;
     int64_t modify_timestamp_;
     FileModes file_mode_;

@@ -1,29 +1,12 @@
 ﻿#include "log/lib_log.h"
+#include "log/utils.h"
 
 LCCL_BEGIN_NAMESPACE
 LCCL_LOG_BEGIN_NAMESPACE
 
-class LibLogStatic
-{
-public:
-    LibLogStatic() :
-        kLevelToStr(static_cast<size_t>(Levels::kNb))
-    {
-        kLevelToStr[static_cast<size_t>(Levels::kDebug)] = "DEBUG ";
-        kLevelToStr[static_cast<size_t>(Levels::kInfo)] = "INFO  ";
-        kLevelToStr[static_cast<size_t>(Levels::kWarn)] = "WARN  ";
-        kLevelToStr[static_cast<size_t>(Levels::kError)] = "ERROR ";
-    }
-
-public:
-    std::vector<const char *> kLevelToStr;
-};
-
-static LibLogStatic lib_log_static;
-
 static void DefaultLogCallback(Levels level, const char *content, size_t len)
 {
-    printf("[scte35-utils]: %s%.*s\n", lib_log_static.kLevelToStr[static_cast<size_t>(level)], static_cast<int>(len), content);
+    fmt::println("[lccl]: {}{:.{}}", Utils::Instance().GetLvelMap(level).str, static_cast<int>(len), content);
 }
 
 static void (*lib_log_cb)(Levels level, const char *content, size_t len) = DefaultLogCallback;

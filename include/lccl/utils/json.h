@@ -1,5 +1,5 @@
-﻿#ifndef LCCL_INCLUDE_UTILS_JSON_INL_H_
-#define LCCL_INCLUDE_UTILS_JSON_INL_H_
+﻿#ifndef LCCL_INCLUDE_UTILS_JSON_H_
+#define LCCL_INCLUDE_UTILS_JSON_H_
 
 #include <cstdint>
 #include <string>
@@ -192,4 +192,4 @@ inline void RemoveJsonChild(rapidjson::Value &json_val, const std::string &key)
 
 LCCL_END_NAMESPACE
 
-#endif // !LCCL_INCLUDE_UTILS_JSON_INL_H_
+#endif // !LCCL_INCLUDE_UTILS_JSON_H_
