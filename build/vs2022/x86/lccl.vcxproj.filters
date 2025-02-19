@@ -1,0 +1,267 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="内部文件">
+      <UniqueIdentifier>{cc791551-5e4d-4e86-bab0-9982767b45b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\file">
+      <UniqueIdentifier>{b59ef815-020e-431e-994e-a8b039b620e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\log">
+      <UniqueIdentifier>{b2788fbb-1464-463d-a080-3acd37b7f0d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\file\os">
+      <UniqueIdentifier>{3ee0afe8-6ee4-44c4-beea-006153451690}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="内部文件\file">
+      <UniqueIdentifier>{2ae55d17-cfdd-4cf0-aedd-32b1fc2d498e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="内部文件\log">
+      <UniqueIdentifier>{ad2b0fb7-e215-48ff-b5bc-afb016602038}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\lccl">
+      <UniqueIdentifier>{1971e364-bb06-4f71-9279-f0c46956641d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\rapidjson">
+      <UniqueIdentifier>{09eaf9c4-97c8-433c-9fc5-572a51ea9a89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\rapidjson\error">
+      <UniqueIdentifier>{e7ef60c2-7400-4428-896a-720867c0176b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\rapidjson\internal">
+      <UniqueIdentifier>{dfb40f24-0b71-4bae-8997-07da2c26d7e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\rapidjson\msinttypes">
+      <UniqueIdentifier>{379757ab-18e5-486f-b86a-97693440d6ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\lccl\bit">
+      <UniqueIdentifier>{61051c78-9dcb-458f-8868-9cc896791c98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\lccl\fmt">
+      <UniqueIdentifier>{a228e492-c15c-4791-a9fa-0953a785ba49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\lccl\utils">
+      <UniqueIdentifier>{78a64346-c4a5-4fbb-908f-e474861325f4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\lccl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\file\file_info.cpp">
+      <Filter>源文件\file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\file\file_os.cpp">
+      <Filter>源文件\file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\file\os\file_linux.cpp">
+      <Filter>源文件\file\os</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\file\os\file_windows.cpp">
+      <Filter>源文件\file\os</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\log\lib_log.cpp">
+      <Filter>源文件\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\log\logger.cpp">
+      <Filter>源文件\log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\log\utils.cpp">
+      <Filter>源文件\log</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\internal\file\file_info.h">
+      <Filter>内部文件\file</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\internal\file\file_os.h">
+      <Filter>内部文件\file</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\internal\log\lib_log.h">
+      <Filter>内部文件\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\internal\log\logger.h">
+      <Filter>内部文件\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\internal\log\utils.h">
+      <Filter>内部文件\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\error\en.h">
+      <Filter>头文件\rapidjson\error</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\error\error.h">
+      <Filter>头文件\rapidjson\error</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\biginteger.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\clzll.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\diyfp.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\dtoa.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\ieee754.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\itoa.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\meta.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\pow10.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\regex.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\stack.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\strfunc.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\strtod.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\internal\swap.h">
+      <Filter>头文件\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\msinttypes\inttypes.h">
+      <Filter>头文件\rapidjson\msinttypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\msinttypes\stdint.h">
+      <Filter>头文件\rapidjson\msinttypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\allocators.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\cursorstreamwrapper.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\document.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\encodedstream.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\encodings.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\filereadstream.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\filewritestream.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\fwd.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\istreamwrapper.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\memorybuffer.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\memorystream.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\ostreamwrapper.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\pointer.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\prettywriter.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\rapidjson.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\reader.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\schema.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\stream.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\stringbuffer.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\uri.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\rapidjson\writer.h">
+      <Filter>头文件\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\bit.h">
+      <Filter>头文件\lccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\file.h">
+      <Filter>头文件\lccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\fmt.h">
+      <Filter>头文件\lccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\log.h">
+      <Filter>头文件\lccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\bit\defines.h">
+      <Filter>头文件\lccl\bit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\bit\reader.h">
+      <Filter>头文件\lccl\bit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\bit\writer.h">
+      <Filter>头文件\lccl\bit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\fmt\chrono.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\fmt\color.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\fmt\core.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\fmt\format.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\fmt\format-inl.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\fmt\ostream.h">
+      <Filter>头文件\lccl\fmt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\utils\json.h">
+      <Filter>头文件\lccl\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\utils\path.h">
+      <Filter>头文件\lccl\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lccl\utils\ring_buffer.h">
+      <Filter>头文件\lccl\utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
