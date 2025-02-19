@@ -134,6 +134,8 @@ void Logger::LogThread()
             log_msg->sync_promise->set_value(true);
         }
     }
+
+    CloseLog();
 }
 
 void Logger::PrintLog(LogMsg &log_msg, size_t id)
@@ -200,7 +202,7 @@ void Logger::PrintLog(LogMsg &log_msg, size_t id)
         {
             z_inbuf_.resize(z_inbuf_.size() + content.size() + kZlibChunkSize);
         }
-        memcpy(&z_inbuf_[0], content.c_str(), content.size());
+        memcpy(&z_inbuf_[0] + z_inbuf_size_, content.c_str(), content.size());
         z_inbuf_size_ += content.size();
 
         if (z_inbuf_size_ >= kZlibChunkSize)
@@ -218,14 +220,49 @@ void Logger::PrintLog(LogMsg &log_msg, size_t id)
                     fout_.close();
                     return;
                 }
+
                 fout_.write(reinterpret_cast<const char *>(&z_outbuf_[0]), kZlibChunkSize - z_stream_.avail_out);
+                fout_.flush();
+                file_write_size_ += (kZlibChunkSize - z_stream_.avail_out);
             } while (0 == z_stream_.avail_out);
+
+            z_inbuf_size_ = 0;
         }
         break;
     }
 
     default:
         break;
+    }
+}
+
+void Logger::CloseLog()
+{
+    if (fout_.is_open())
+    {
+        switch (compress_type_)
+        {
+        case CompressTypes::kGzip:
+        {
+            do
+            {
+                z_stream_.avail_out = kZlibChunkSize;
+                z_stream_.next_out = &z_outbuf_[0];
+
+                if (Z_STREAM_ERROR == deflate(&z_stream_, Z_FINISH))
+                {
+                    break;
+                }
+                fout_.write(reinterpret_cast<const char *>(&z_outbuf_[0]), kZlibChunkSize - z_stream_.avail_out);
+            } while (0 == z_stream_.avail_out);
+            deflateEnd(&z_stream_);
+        }
+
+        default:
+            break;
+        }
+
+        fout_.close();
     }
 }
 
@@ -242,33 +279,8 @@ void Logger::UpdateLogFile(std::chrono::system_clock::time_point time_point)
         (hour_count != file_hour_count_) ||
         ((max_size_ > 0) && (file_info_) && (file_info_->GetTotalSize() + file_write_size_ > max_size_)))
     {
-        // close exist file
-        if (fout_.is_open())
-        {
-            switch (compress_type_)
-            {
-            case CompressTypes::kGzip:
-            {
-                do
-                {
-                    z_stream_.avail_out = kZlibChunkSize;
-                    z_stream_.next_out = &z_outbuf_[0];
-
-                    if (Z_STREAM_ERROR == deflate(&z_stream_, Z_FINISH))
-                    {
-                        break;
-                    }
-                    fout_.write(reinterpret_cast<const char *>(&z_outbuf_[0]), kZlibChunkSize - z_stream_.avail_out);
-                } while (0 == z_stream_.avail_out);
-                deflateEnd(&z_stream_);
-            }
-
-            default:
-                break;
-            }
-
-            fout_.close();
-        }
+        // close exist log
+        CloseLog();
 
         // do cleaning
         UpdateFileInfo();
@@ -314,8 +326,7 @@ void Logger::UpdateLogFile(std::chrono::system_clock::time_point time_point)
                 break;
             }
 
-            int file_no = 0;
-            while (true)
+            for (int file_no = 0; ; ++file_no)
             {
                 file_name = fmt::format("{}{}{:04d}-{:02d}-{:02d}{}{:04d}-{:02d}-{:02d}-{:02d}{}.log.gz",
                     path_, kDirSep,

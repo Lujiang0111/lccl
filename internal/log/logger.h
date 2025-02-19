@@ -41,6 +41,7 @@ public:
 private:
     void LogThread();
     void PrintLog(LogMsg &log_msg, size_t id);
+    void CloseLog();
 
     void UpdateFileInfo();
     void UpdateLogFile(std::chrono::system_clock::time_point time_point);
@@ -59,7 +60,7 @@ private:
 
     RingBuffer<std::shared_ptr<LogMsg>> log_msgs_;
 
-    std::fstream fout_;
+    std::ofstream fout_;
     std::shared_ptr<file::IFileInfo> file_info_;
     int64_t file_hour_count_;
     size_t file_write_size_;

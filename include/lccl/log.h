@@ -39,10 +39,10 @@ public:
     virtual void LogContent(Levels level, bool on_screen, bool sync, const char *file_name, int file_line, const char *content) = 0;
 
     template<typename... Args>
-    inline void LogFmt(Levels level, fmt::format_string<Args...> fmt, Args &&... args)
+    inline void LogFmt(Levels level, bool on_screen, bool sync, const char *file_name, int file_line, fmt::format_string<Args...> fmt, Args &&... args)
     {
         std::string content = fmt::vformat(fmt, fmt::make_format_args(args...));
-        LogContent(level, content.c_str(), content.length());
+        LogContent(level, on_screen, sync, file_name, file_line, content.c_str());
     }
 };
 
