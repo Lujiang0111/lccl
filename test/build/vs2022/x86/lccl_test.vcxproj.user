@@ -4,12 +4,12 @@
     <LocalDebuggerWorkingDirectory>$(TargetDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(TargetFileName)</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>0 E:\Test</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>2 1 1 100 0 0</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(TargetDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(TargetFileName)</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>0 E:\Test</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>2 1 1 100 0 0</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

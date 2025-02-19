@@ -6,7 +6,6 @@ set bin_base=..\..\..\bin\
 set trd_base=..\..\..\3rd\
 set dep_base=dep\
 
-rmdir /Q /S %bin_base%
 rmdir /Q /S %dep_base%
 
 mkdir %dep_base%include
