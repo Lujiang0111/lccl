@@ -2,10 +2,12 @@
 #include <iostream>
 #include <thread>
 #include "lccl.h"
+#include "test_fmt.h"
 
 enum class TestTypes
 {
     kTestVersion = 0,
+    kTestFmt,
 };
 
 bool app_running = true;
@@ -31,6 +33,9 @@ int main(int argc, char **argv)
     {
     case TestTypes::kTestVersion:
         std::cout << "lccl version " << lccl::GetVersion();
+        break;
+    case TestTypes::kTestFmt:
+        TestFmt(argc, argv);
         break;
     default:
         break;
