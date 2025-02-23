@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 源文件
-file(GLOB srcs "src/*.cpp")
+file(GLOB_RECURSE srcs "src/*.cpp")
 
 # 创建动态库文件
 add_library(${PROJECT_NAME} SHARED ${srcs})
