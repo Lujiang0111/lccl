@@ -20,6 +20,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/include
 )
 
+# 链接库目录
+target_link_directories(${PROJECT_NAME} PRIVATE dep/lib)
+
 # 设置输出目录
 if(MSVC)
     set(bin_dir ${CMAKE_CURRENT_SOURCE_DIR}/bin)
@@ -37,31 +40,55 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEAS
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${bin_dir})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${bin_dir})
 
-# Windows设置UTF8的flag
-if(MSVC)
+set(os_name "Debian")
+set(os_version "12")
+
+# 获取系统和架构类型
+if(WIN32)
+    set(os_name "Windows")
+    set(os_version "Msvc")
+else()
+    if(EXISTS "/etc/os-release")
+        file(READ "/etc/os-release" os_release_content)
+        string(REGEX MATCH "NAME=\"([^\"]*)\"" _ ${os_release_content})
+        set(os_name ${CMAKE_MATCH_1})
+        string(REGEX MATCH "VERSION=\"([^\"]*)\"" _ ${os_release_content})
+        set(os_version ${CMAKE_MATCH_1})
+    endif()
+endif()
+
+message(STATUS "os name=${os_name}, os version=${os_version}, os arch=${CMAKE_SYSTEM_PROCESSOR}, build type=${CMAKE_BUILD_TYPE}")
+
+set(prebuild_lib_base_path "../../version/lib")
+set(prebuild_libs "")
+
+# 系统自定义参数
+if(os_name MATCHES "Windows")
     target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
-endif()
-
-# 宏定义
-if(MSVC)
     target_compile_definitions(${PROJECT_NAME} PRIVATE LCCL_API_EXPORT=1)
-endif()
-
-# 链接库
-target_link_directories(${PROJECT_NAME} PRIVATE dep/lib)
-
-if(MSVC)
+    set(prebuild_libs
+        ${prebuild_libs}
+        "zlib 1.3.1"
+    )
     target_link_libraries(${PROJECT_NAME} PRIVATE zlib)
 else()
     target_link_libraries(${PROJECT_NAME} PRIVATE z)
 endif()
 
-
 # 编译前操作
 add_custom_target(
     ${PROJECT_NAME}_prebuild
-    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/prebuild.py
+    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/prebuild.py ${os_name} ${os_version} ${CMAKE_SYSTEM_PROCESSOR} ${CMAKE_BUILD_TYPE} ${prebuild_lib_base_path} ${prebuild_libs}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_prebuild)
+
+set(postbuild_base_path "../../version/lib")
+
+# 编译后操作
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/postbuild.py ${os_name} ${os_version} ${CMAKE_SYSTEM_PROCESSOR} ${CMAKE_BUILD_TYPE} ${postbuild_base_path} ${PROJECT_NAME} ${PROJECT_VERSION}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
