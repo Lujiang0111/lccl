@@ -6,6 +6,11 @@ project(lccl VERSION 1.0)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 构建类型默认为Debug
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
 # 源文件
 file(GLOB_RECURSE srcs "src/*.cpp")
 
@@ -40,23 +45,22 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEAS
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${bin_dir})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${bin_dir})
 
-set(os_name "Debian")
+set(os_name "debian")
 set(os_version "12")
 
 # 获取系统和架构类型
 if(WIN32)
-    set(os_name "Windows")
-    set(os_version "Msvc")
+    set(os_name "windows")
+    set(os_version "msvc")
 else()
     if(EXISTS "/etc/os-release")
         file(READ "/etc/os-release" os_release_content)
-        string(REGEX MATCH "NAME=\"([^\"]*)\"" _ ${os_release_content})
+        string(REGEX MATCH "ID=\"([^\"]*)\"" _ ${os_release_content})
         set(os_name ${CMAKE_MATCH_1})
-        string(REGEX MATCH "VERSION=\"([^\"]*)\"" _ ${os_release_content})
+        string(REGEX MATCH "VERSION_ID=\"([^\"]*)\"" _ ${os_release_content})
         set(os_version ${CMAKE_MATCH_1})
     endif()
 endif()
-
 message(STATUS "os name=${os_name}, os version=${os_version}, os arch=${CMAKE_SYSTEM_PROCESSOR}, build type=${CMAKE_BUILD_TYPE}")
 
 set(prebuild_lib_base_path "../../version/lib")
