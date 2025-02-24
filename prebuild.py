@@ -69,7 +69,7 @@ class Prebuild:
 
     def main(self, args) -> None:
         param_cnt = len(args) - 1
-        if param_cnt < 6:
+        if param_cnt < 5:
             raise SystemExit(f"param cnt={param_cnt} to less")
 
         # 获取编译模式、依赖路径和库基路径
@@ -79,18 +79,20 @@ class Prebuild:
         self.__build_type = args[4]
         self.__lib_base_path = args[5]
 
-        # 删除依赖路径
+        # 重建依赖目录
         rm_dir(self.__deps_path)
+        os.makedirs(self.__deps_path)
 
         # 获取库名及其版本
-        libs = args[6].split(" ")
-        for i in range(1, len(libs), 2):
-            lib_name = libs[i - 1]
-            lib_version = libs[i]
-            self.__copy_lib(lib_name, lib_version)
+        if param_cnt >= 6:
+            libs = args[6].split(" ")
+            for i in range(1, len(libs), 2):
+                lib_name = libs[i - 1]
+                lib_version = libs[i]
+                self.__copy_lib(lib_name, lib_version)
 
-        # 创建符号链接
-        create_so_link(os.path.join(self.__deps_path, "lib"))
+            # 创建符号链接
+            create_so_link(os.path.join(self.__deps_path, "lib"))
 
     # 复制库文件及其相关内容
     def __copy_lib(self, lib_name, lib_version) -> bool:
