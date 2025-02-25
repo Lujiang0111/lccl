@@ -51,8 +51,11 @@ Logger::Logger(const std::string &path, size_t max_size, CompressTypes compress_
     compress_type_(compress_type),
     max_level_(Levels::kNb),
     utils_(nullptr),
+    exit_flag_(false),
     log_thread_running_(false),
-    log_msgs_(10),
+    enq_log_msgs_(10),
+    deq_log_msgs_(10),
+    enq_log_msgs_full_(false),
     file_hour_count_(0),
     file_write_size_(0),
     z_inbuf_(kZlibChunkSize),
@@ -72,7 +75,10 @@ Logger::Logger(const std::string &path, size_t max_size, CompressTypes compress_
 
 Logger::~Logger()
 {
-    log_thread_running_ = false;
+    exit_flag_ = true;
+    std::shared_ptr<LogMsg> log_msg = std::make_shared<LogMsg>();
+    EnqueueLogMsg(log_msg);
+
     if (log_thread_.joinable())
     {
         log_thread_.join();
@@ -86,11 +92,6 @@ void Logger::SetMaxLevel(Levels max_level)
 
 void Logger::LogContent(Levels level, bool on_screen, bool sync, const char *file_name, int file_line, const char *content)
 {
-    if (!log_thread_running_)
-    {
-        return;
-    }
-
     std::shared_ptr<LogMsg> log_msg = std::make_shared<LogMsg>();
     log_msg->time_point = std::chrono::system_clock::now();
     log_msg->thread_id = GetThreadId();
@@ -104,29 +105,85 @@ void Logger::LogContent(Levels level, bool on_screen, bool sync, const char *fil
     {
         log_msg->sync_promise = std::make_shared<std::promise<bool>>();
         std::future<bool> future = log_msg->sync_promise->get_future();
-        if (log_msgs_.Push(log_msg))
+        if (EnqueueLogMsg(log_msg))
         {
             future.get();
         }
     }
     else
     {
-        log_msgs_.Push(log_msg);
+        EnqueueLogMsg(log_msg);
     }
+}
+
+bool Logger::EnqueueLogMsg(std::shared_ptr<LogMsg> log_msg)
+{
+    std::lock_guard<std::mutex> lock(log_msgs_mutex_);
+    if (exit_flag_)
+    {
+        log_thread_running_ = false;
+        return false;
+    }
+
+    if (!enq_log_msgs_.Push(log_msg))
+    {
+        enq_log_msgs_full_ = true;
+        return false;
+    }
+    
+    return true;
+}
+
+bool Logger::DequeueLogMsgs()
+{
+    if ((!deq_log_msgs_.Empty()) || (enq_log_msgs_.Empty()))
+    {
+        return false;
+    }
+
+    bool enq_log_msgs_full = enq_log_msgs_full_;
+    {
+        std::lock_guard<std::mutex> lock(log_msgs_mutex_);
+        enq_log_msgs_.Swap(deq_log_msgs_);
+        enq_log_msgs_full_ = false;
+    }
+
+    if (enq_log_msgs_full)
+    {
+        std::shared_ptr<LogMsg> log_msg = nullptr;
+        while (deq_log_msgs_.Pop(log_msg))
+        {
+            if (log_msg->sync_promise)
+            {
+                log_msg->sync_promise->set_value(false);
+            }
+        }
+    }
+
+    return true;
 }
 
 void Logger::LogThread()
 {
     size_t id = 0;
     std::shared_ptr<LogMsg> log_msg = nullptr;
-    while ((log_thread_running_) || (!log_msgs_.Empty()))
+    while (true)
     {
-        if (!log_msgs_.Pop(log_msg))
+        if (deq_log_msgs_.Empty())
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            continue;
+            if (!DequeueLogMsgs())
+            {
+                if (!log_thread_running_)
+                {
+                    break;
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                continue;
+            }
         }
 
+        deq_log_msgs_.Pop(log_msg);
         PrintLog(*log_msg, id++);
 
         if (log_msg->sync_promise)
@@ -244,6 +301,9 @@ void Logger::CloseLog()
         {
         case CompressTypes::kGzip:
         {
+            z_stream_.avail_in = static_cast<uInt>(z_inbuf_size_);
+            z_stream_.next_in = &z_inbuf_[0];
+
             do
             {
                 z_stream_.avail_out = kZlibChunkSize;

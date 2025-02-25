@@ -3,11 +3,15 @@
 #include <thread>
 #include "lccl.h"
 #include "test_fmt.h"
+#include "test_file.h"
+#include "test_log.h"
 
 enum class TestTypes
 {
     kTestVersion = 0,
     kTestFmt,
+    kTestFile,
+    kTestLog
 };
 
 bool app_running = true;
@@ -37,7 +41,11 @@ int main(int argc, char **argv)
     case TestTypes::kTestFmt:
         TestFmt(argc, argv);
         break;
+    case TestTypes::kTestFile:
+        TestFile(argc, argv);
+        break;
     default:
+        TestLog(argc, argv);
         break;
     }
 

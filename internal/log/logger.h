@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <future>
+#include <mutex>
 #include <thread>
 #include "zlib.h"
 #include "lccl/file.h"
@@ -39,6 +40,9 @@ public:
     virtual void LogContent(Levels level, bool on_screen, bool sync, const char *file_name, int file_line, const char *content);
 
 private:
+    bool EnqueueLogMsg(std::shared_ptr<LogMsg> log_msg);
+    bool DequeueLogMsgs();
+
     void LogThread();
     void PrintLog(LogMsg &log_msg, size_t id);
     void CloseLog();
@@ -54,11 +58,15 @@ private:
 
     Levels max_level_;
     Utils *utils_;
+    bool exit_flag_;
 
     std::thread log_thread_;
     bool log_thread_running_;
 
-    RingBuffer<std::shared_ptr<LogMsg>> log_msgs_;
+    RingBuffer<std::shared_ptr<LogMsg>> enq_log_msgs_;
+    RingBuffer<std::shared_ptr<LogMsg>> deq_log_msgs_;
+    bool enq_log_msgs_full_;
+    std::mutex log_msgs_mutex_;
 
     std::ofstream fout_;
     std::shared_ptr<file::IFileInfo> file_info_;
