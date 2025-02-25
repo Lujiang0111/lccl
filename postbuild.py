@@ -62,13 +62,15 @@ class Postbuild:
     __os_version = None
     __os_arch = None
     __build_type = "Debug"
+    __include_path = None
+    __bin_path = None
     __dst_base_path = None
     __project_name = None
     __project_version = None
 
     def main(self, args) -> None:
         param_cnt = len(args) - 1
-        if param_cnt < 7:
+        if param_cnt < 9:
             raise SystemExit(f"param cnt={param_cnt} to less")
 
         # 获取编译模式、依赖路径和目的路径
@@ -76,9 +78,11 @@ class Postbuild:
         self.__os_version = args[2]
         self.__os_arch = args[3]
         self.__build_type = args[4]
-        self.__dst_base_path = args[5]
-        self.__project_name = args[6]
-        self.__project_version = args[7]
+        self.__include_path = os.path.join(args[5], "include")
+        self.__bin_path = os.path.join(args[6], "bin")
+        self.__dst_base_path = args[7]
+        self.__project_name = args[8]
+        self.__project_version = args[9]
 
         dst_os_name_path = os.path.join(
             self.__dst_base_path,
@@ -97,8 +101,8 @@ class Postbuild:
         rm_dir(dst_path)
 
         # 拷贝include和bin目录
-        copy_dir(os.path.join("include"), os.path.join(dst_path, "include"))
-        copy_dir(os.path.join("bin"), os.path.join(dst_path, "lib"))
+        copy_dir(self.__include_path, os.path.join(dst_path, "include"))
+        copy_dir(self.__bin_path, os.path.join(dst_path, "lib"))
 
 
 # 程序入口

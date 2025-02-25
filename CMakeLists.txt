@@ -12,7 +12,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # 源文件
-file(GLOB_RECURSE srcs "src/*.cpp")
+file(GLOB_RECURSE srcs "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 # 创建动态库文件
 add_library(${PROJECT_NAME} SHARED ${srcs})
@@ -20,13 +20,17 @@ add_library(${PROJECT_NAME} SHARED ${srcs})
 # 设定库版本
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION 1.0 SOVERSION 1)
 
-# 指定目标的包含目录
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${PROJECT_SOURCE_DIR}/include
-)
-
-# 链接库目录
-target_link_directories(${PROJECT_NAME} PRIVATE dep/lib)
+# 设置输出目录
+set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/bin)
+set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${bin_dir})
+set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${bin_dir})
+set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${bin_dir})
+set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${bin_dir})
+set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${bin_dir})
+set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${bin_dir})
+set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${bin_dir})
+set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${bin_dir})
+set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${bin_dir})
 
 # 获取系统和架构类型
 set(os_name "debian")
@@ -49,25 +53,20 @@ endif()
 
 message(STATUS "os name=${os_name}, os version=${os_version}, os arch=${os_arch}, build type=${CMAKE_BUILD_TYPE}")
 
-# 设置输出目录
-if(os_name MATCHES "windows")
-    set(bin_dir ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-else()
-    set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/bin)
-endif()
+# 指定目标的包含目录
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${bin_dir})
-set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${bin_dir})
-set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${bin_dir})
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${bin_dir})
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${bin_dir})
-set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${bin_dir})
-set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${bin_dir})
-set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${bin_dir})
-set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${bin_dir})
+# 链接库目录
+target_link_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/dep/lib)
 
-set(prebuild_lib_base_path "../../../version/lib")
+# 链接库
+
+set(prebuild_lib_base_path "${CMAKE_CURRENT_SOURCE_DIR}/../../../version/lib")
 set(prebuild_libs "")
+
+set(postbuild_lib_base_path "${CMAKE_CURRENT_SOURCE_DIR}/../../../version/lib")
 
 # 系统自定义参数
 if(os_name MATCHES "windows")
@@ -85,17 +84,13 @@ endif()
 # 编译前操作
 add_custom_target(
     ${PROJECT_NAME}_prebuild
-    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/prebuild.py ${os_name} ${os_version} ${os_arch} ${CMAKE_BUILD_TYPE} ${prebuild_lib_base_path} ${prebuild_libs}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/prebuild.py ${os_name} ${os_version} ${os_arch} ${CMAKE_BUILD_TYPE} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${prebuild_lib_base_path} ${prebuild_libs}
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_prebuild)
 
-set(postbuild_base_path "../../../version/lib")
-
 # 编译后操作
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/postbuild.py ${os_name} ${os_version} ${os_arch} ${CMAKE_BUILD_TYPE} ${postbuild_base_path} ${PROJECT_NAME} ${PROJECT_VERSION}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/postbuild.py ${os_name} ${os_version} ${os_arch} ${CMAKE_BUILD_TYPE} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${postbuild_lib_base_path} ${PROJECT_NAME} ${PROJECT_VERSION}
 )

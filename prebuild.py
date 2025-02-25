@@ -53,7 +53,7 @@ def create_so_link(dir) -> None:
 
         if not os.path.isfile(os.path.join(dir, link_name)):
             subprocess.run(
-                "cd {} && ln -sf {} {}".format(dir, so_file, link_name),
+                f"cd {dir} && ln -sf {so_file} {link_name}",
                 shell=True,
             )
 
@@ -63,13 +63,13 @@ class Prebuild:
     __os_version = None
     __os_arch = None
     __build_type = "Debug"
-    __deps_path = "dep"
-    __trd_path = "3rd/"
+    __trd_path = None
+    __dep_path = None
     __lib_base_path = None
 
     def main(self, args) -> None:
         param_cnt = len(args) - 1
-        if param_cnt < 5:
+        if param_cnt < 7:
             raise SystemExit(f"param cnt={param_cnt} to less")
 
         # 获取编译模式、依赖路径和库基路径
@@ -77,22 +77,30 @@ class Prebuild:
         self.__os_version = args[2]
         self.__os_arch = args[3]
         self.__build_type = args[4]
-        self.__lib_base_path = args[5]
+        self.__trd_path = os.path.join(args[5], "3rd")
+        self.__dep_path = os.path.join(args[6], "dep")
+        self.__lib_base_path = args[7]
 
         # 重建依赖目录
-        rm_dir(self.__deps_path)
-        os.makedirs(self.__deps_path)
+        rm_dir(self.__dep_path)
+        os.makedirs(self.__dep_path)
 
         # 获取库名及其版本
-        if param_cnt >= 6:
-            libs = args[6].split(" ")
+        if param_cnt >= 8:
+            libs = args[8].split(" ")
             for i in range(1, len(libs), 2):
-                lib_name = libs[i - 1]
-                lib_version = libs[i]
-                self.__copy_lib(lib_name, lib_version)
+                lib_name = libs[i - 1].strip()
+                lib_version = libs[i].strip()
+                if not lib_name:
+                    continue
+
+                if not self.__copy_lib(lib_name, lib_version):
+                    print(
+                        f"{lib_name} v{lib_version} not found! put {lib_name} in {os.path.join(self.__trd_path, lib_name)} or {os.path.join(self.__lib_base_path, lib_name)}"
+                    )
 
             # 创建符号链接
-            create_so_link(os.path.join(self.__deps_path, "lib"))
+            create_so_link(os.path.join(self.__dep_path, "lib"))
 
     # 复制库文件及其相关内容
     def __copy_lib(self, lib_name, lib_version) -> bool:
@@ -102,17 +110,16 @@ class Prebuild:
             # 复制include和lib
             copy_dir(
                 os.path.join(trd_lib_path, "include"),
-                os.path.join(self.__deps_path, "include", lib_name),
+                os.path.join(self.__dep_path, "include", lib_name),
             )
             copy_dir(
-                os.path.join(trd_lib_path, "lib"), os.path.join(self.__deps_path, "lib")
+                os.path.join(trd_lib_path, "lib"), os.path.join(self.__dep_path, "lib")
             )
             return True
 
         # 检查库路径有没有对应的库
         lib_path = os.path.join(self.__lib_base_path, lib_name)
         if not os.path.isdir(lib_path):
-            print(f"{lib_path} not found!")
             return False
 
         # 获取版本信息
@@ -163,10 +170,10 @@ class Prebuild:
         # 复制include和lib
         copy_dir(
             os.path.join(lib_os_arch_path, "include"),
-            os.path.join(self.__deps_path, "include", lib_name),
+            os.path.join(self.__dep_path, "include", lib_name),
         )
         copy_dir(
-            os.path.join(lib_os_arch_path, "lib"), os.path.join(self.__deps_path, "lib")
+            os.path.join(lib_os_arch_path, "lib"), os.path.join(self.__dep_path, "lib")
         )
         return True
 
