@@ -70,7 +70,10 @@ set(postbuild_libs "lccl 1.0")
 
 # 系统自定义参数
 if(os_name MATCHES "windows")
+    # 兼容fmt库
     target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
+
+    # 添加特定库
     set(postbuild_libs
         "${postbuild_libs} \
         zlib 1.3.1"
