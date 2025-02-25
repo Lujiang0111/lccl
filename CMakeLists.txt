@@ -58,6 +58,8 @@ message(STATUS "os name=${os_name}, os version=${os_version}, os arch=${os_arch}
 # 指定目标的包含目录
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/internal
+    ${CMAKE_CURRENT_BINARY_DIR}/dep/include/zlib
 )
 
 # 链接库目录
@@ -73,6 +75,7 @@ set(postbuild_lib_base_path "${CMAKE_CURRENT_SOURCE_DIR}/../../../version/lib")
 # 系统自定义参数
 if(os_name MATCHES "windows")
     target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
+    target_compile_options(${PROJECT_NAME} PRIVATE /wd4996)
     target_compile_definitions(${PROJECT_NAME} PRIVATE LCCL_API_EXPORT=1)
     set(prebuild_libs
         ${prebuild_libs}
