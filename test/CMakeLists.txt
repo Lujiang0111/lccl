@@ -90,4 +90,5 @@ add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_prebuild)
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/postbuild.py ${os_name} ${os_version} ${os_arch} ${CMAKE_BUILD_TYPE} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${postbuild_lib_base_path} ${postbuild_libs}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/conf ${bin_dir}
 )
