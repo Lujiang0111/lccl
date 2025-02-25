@@ -2,6 +2,8 @@
 
 project(lccl VERSION 1.0)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
+
 # 设置 C++ 标准
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
