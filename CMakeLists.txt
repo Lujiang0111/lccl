@@ -93,6 +93,8 @@ if(os_name MATCHES "windows")
 
     # 链接特定库
     target_link_libraries(${PROJECT_NAME} PRIVATE zlib)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Iphlpapi)
 else()
 
     # 链接特定库
