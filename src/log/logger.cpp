@@ -354,7 +354,7 @@ void Logger::UpdateLogFile(std::chrono::system_clock::time_point time_point)
         // get tm
         time_t time_tt = std::chrono::system_clock::to_time_t(time_point);
         std::tm time_tm;
-#if defined(_WIN32)
+#if defined(_MSC_VER)
         ::localtime_s(&time_tm, &time_tt);
 #else
         ::localtime_r(&time_tt, &time_tm);

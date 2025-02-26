@@ -15,7 +15,7 @@ bool CreateDir(const char *file_name, bool parent_only)
     std::string adj_file_name = OsPathJoin(file_name);
 
     size_t search_offset = 0;
-#if defined(_WIN32)
+#if defined(_MSC_VER)
     if ((adj_file_name.length() >= 3) && (':' == adj_file_name[1]) && (kDirSep == adj_file_name[2]))
     {
         search_offset = 3;
