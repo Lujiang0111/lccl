@@ -1,6 +1,7 @@
 ﻿#if defined(_MSC_VER)
 #include <windows.h>
 #else
+#include <sys/syscall.h>
 #endif
 
 #include "lccl/fmt.h"

@@ -79,6 +79,8 @@ if(os_name MATCHES "windows")
         zlib 1.3.1"
     )
 else()
+    # 链接特定库
+    target_link_libraries(${PROJECT_NAME} PRIVATE pthread)
 endif()
 
 # 编译前操作

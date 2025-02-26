@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include "lccl/utils/file_inl.h"
+#include "lccl/utils/path.h"
 #include "file/file_info.h"
 #include "log/lib_log.h"
 
