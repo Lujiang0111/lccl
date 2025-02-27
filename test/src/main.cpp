@@ -1,6 +1,5 @@
 ﻿#include <csignal>
 #include <iostream>
-#include <thread>
 #include "lccl.h"
 #include "test_fmt.h"
 #include "test_file.h"
