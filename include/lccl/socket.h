@@ -70,6 +70,14 @@ LCCL_API bool IsSaMulticast(const sockaddr *sa);
 LCCL_API bool SetBlockMode(int fd, bool block);
 LCCL_API bool SetTTL(int fd, int ttl);
 
+/** 为socket设置keep alive
+* on：是否启用keepalive
+* idle：空闲多久后开始发送keepalive探测（秒）
+* interval：探测包之间的时间间隔（秒）
+* count：未收到响应后发送探测包的次数
+*/
+LCCL_API bool SetKeepAlive(int fd, bool on, int idle, int interval, int count);
+
 LCCL_SOCKET_END_NAMESPACE
 LCCL_END_NAMESPACE
 

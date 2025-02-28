@@ -1,9 +1,11 @@
 ﻿#if defined(_MSC_VER)
 #include <ws2tcpip.h>
+#include <mstcpip.h>
 #else
 #include <fcntl.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <netinet/tcp.h>
 #endif
 
 #include "lccl/socket.h"
@@ -346,6 +348,52 @@ bool SetTTL(int fd, int ttl)
     setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_HOPS, (const char *)&ttl, sizeof(ttl));
     setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (const char *)&ttl, sizeof(ttl));
     return true;
+}
+
+bool SetKeepAlive(int fd, bool on, int idle, int interval, int count)
+{
+#ifdef _MSC_VER
+    DWORD bytes_returned;
+    tcp_keepalive tk;
+    tk.onoff = (on) ? 1 : 0;
+    tk.keepalivetime = idle * 1000;
+    tk.keepaliveinterval = interval * 1000;
+
+    if (SOCKET_ERROR == WSAIoctl(fd, SIO_KEEPALIVE_VALS, &tk, sizeof(tk),
+        nullptr, 0, &bytes_returned, nullptr, nullptr))
+    {
+        LIB_LOG(lccl::log::Levels::kError, "Failed to set keepalive: {}", GetLastErrorCode());
+        return false;
+    }
+
+    return true;
+#else
+    int on_off = (on) ? 1 : 0;
+    if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &on_off, sizeof(on_off)) < 0)
+    {
+        LIB_LOG(lccl::log::Levels::kError, "Failed to set SO_KEEPALIVE, error={}", GetLastErrorCode());
+        return false;
+    }
+
+    if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(idle)) < 0)
+    {
+        LIB_LOG(lccl::log::Levels::kError, "Failed to set TCP_KEEPIDLE, error={}", GetLastErrorCode());
+        return false;
+    }
+
+    if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(interval)) < 0) {
+        LIB_LOG(lccl::log::Levels::kError, "Failed to set TCP_KEEPINTVL, error={}", GetLastErrorCode());
+        return false;
+    }
+
+    if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &count, sizeof(count)) < 0)
+    {
+        LIB_LOG(lccl::log::Levels::kError, "Failed to set TCP_KEEPCNT, error={}", GetLastErrorCode());
+        return false;
+    }
+
+    return true;
+#endif
 }
 
 LCCL_SOCKET_END_NAMESPACE
