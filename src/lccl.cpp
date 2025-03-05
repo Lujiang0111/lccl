@@ -8,18 +8,14 @@
 #define VERSION_Y 0
 #endif
 
-#ifndef VERSION_Z
-#define VERSION_Z 0
-#endif
-
 #define STRINGIFY(x) #x
-#define GET_VERSION(x, y, z) STRINGIFY(x) "." STRINGIFY(y) "." STRINGIFY(z)
+#define GET_VERSION(x, y) STRINGIFY(x) "." STRINGIFY(y)
 
 LCCL_BEGIN_NAMESPACE
 
 const char *GetVersion()
 {
-    const char *version = GET_VERSION(VERSION_X, VERSION_Y, VERSION_Z);
+    const char *version = GET_VERSION(VERSION_X, VERSION_Y);
     return version;
 }
 
