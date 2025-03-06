@@ -68,14 +68,29 @@ public:
         return true;
     }
 
-    bool PopClear()
+    bool Clear()
     {
         read_index_ = write_index_;
     }
 
-    bool Empty()
+    bool Empty() const
     {
         return (read_index_ == write_index_);
+    }
+
+    T &At(size_t index)
+    {
+        return buffer_[(read_index_ + index) & size_mask_];
+    }
+
+    size_t Size() const
+    {
+        if (write_index_ >= read_index_)
+        {
+            return write_index_ - read_index_;
+        }
+
+        return read_index_ + size_ - write_index_;
     }
 
 private:
@@ -133,6 +148,7 @@ public:
         return true;
     }
 
+    // 清空环形缓冲区，只能在pop端调用
     bool PopClear()
     {
         size_t write_index = write_index_.load(std::memory_order_acquire);
