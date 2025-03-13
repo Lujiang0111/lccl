@@ -78,6 +78,7 @@ if(os_name MATCHES "windows")
 
     # 屏蔽特定告警
     target_compile_options(${PROJECT_NAME} PRIVATE /wd4996)
+    target_compile_options(${PROJECT_NAME} PRIVATE /wd4251)
 
     # 导出符号
     target_compile_definitions(${PROJECT_NAME} PRIVATE LCCL_API_EXPORT=1)
