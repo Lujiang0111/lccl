@@ -155,9 +155,15 @@ public:
         read_index_.store(write_index, std::memory_order_release);
     }
 
-    bool Empty()
+    bool Empty() const
     {
-        return (read_index_.load(std::memory_order_acquire) == write_index_.load(std::memory_order_acquire));
+        return (read_index_.load(std::memory_order_relaxed) == write_index_.load(std::memory_order_relaxed));
+    }
+
+    bool Full() const
+    {
+        size_t next_write_index = (write_index_.load(std::memory_order_relaxed) + 1) & size_mask_;
+        return (next_write_index == read_index_.load(std::memory_order_relaxed));
     }
 
 private:
