@@ -4,12 +4,15 @@
 LCCL_BEGIN_NAMESPACE
 LCCL_LOG_BEGIN_NAMESPACE
 
-
-
-Utils &Utils::Instance()
+Utils::Utils() :
+    next_id_(0)
 {
-    static Utils instance;
-    return instance;
+    InitLevelMaps();
+}
+
+Utils::~Utils()
+{
+
 }
 
 const Utils::LevelMap &Utils::GetLvelMap(Levels level) const
@@ -17,9 +20,9 @@ const Utils::LevelMap &Utils::GetLvelMap(Levels level) const
     return level_maps_[static_cast<size_t>(level)];
 }
 
-Utils::Utils()
+size_t Utils::NextId()
 {
-    InitLevelMaps();
+    return next_id_.fetch_add(1);
 }
 
 void Utils::InitLevelMaps()

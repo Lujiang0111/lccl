@@ -46,13 +46,13 @@ void TestLog(int argc, char **argv)
         static_cast<size_t>(100) << 20,
         lccl::log::CompressTypes::kGzip);
     
+    TestLogTypes test_log_type = static_cast<TestLogTypes>(atoi(argv[2]));
     int thread_cnt = atoi(argv[3]);
     int repeat_times = atoi(argv[4]);
     bool on_screen = ('0' != *argv[5]);
     bool sync = ('0' != *argv[6]);
 
     std::vector<std::thread> test_threads;
-    TestLogTypes test_log_type = static_cast<TestLogTypes>(atoi(argv[2]));
     switch (test_log_type)
     {
     case TestLogTypes::kTestLog:

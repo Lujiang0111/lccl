@@ -3,7 +3,7 @@
 
 #include <string>
 #include "lccl.h"
-#include "lccl/fmt.h"
+#include "lccl/oss/fmt.h"
 
 #define LCCL_LOG_BEGIN_NAMESPACE namespace log {
 #define LCCL_LOG_END_NAMESPACE }

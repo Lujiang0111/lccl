@@ -4,7 +4,6 @@
 #include <sys/syscall.h>
 #endif
 
-#include "lccl/fmt.h"
 #include "lccl/utils/path.h"
 #include "log/lib_log.h"
 #include "log/logger.h"
@@ -12,6 +11,7 @@
 LCCL_BEGIN_NAMESPACE
 LCCL_LOG_BEGIN_NAMESPACE
 
+constexpr size_t kLogMsgsMaxSize = 1000;
 constexpr size_t kZlibChunkSize = 16 * 1024;
 
 static inline size_t GetThreadId_()
@@ -51,19 +51,14 @@ Logger::Logger(const std::string &path, size_t max_size, CompressTypes compress_
     max_size_(max_size),
     compress_type_(compress_type),
     max_level_(Levels::kNb),
-    utils_(nullptr),
-    exit_flag_(false),
     log_thread_running_(false),
-    enq_log_msgs_(10),
-    deq_log_msgs_(10),
-    enq_log_msgs_full_(false),
     file_hour_count_(0),
     file_write_size_(0),
     z_inbuf_(kZlibChunkSize),
     z_inbuf_size_(0),
     z_outbuf_(kZlibChunkSize)
 {
-    utils_ = &Utils::Instance();
+    utils_ = Utils::Instance();
     memset(&z_stream_, 0, sizeof(z_stream_));
 
     log_thread_running_ = true;
@@ -76,10 +71,7 @@ Logger::Logger(const std::string &path, size_t max_size, CompressTypes compress_
 
 Logger::~Logger()
 {
-    exit_flag_ = true;
-    std::shared_ptr<LogMsg> log_msg = std::make_shared<LogMsg>();
-    EnqueueLogMsg(log_msg);
-
+    log_thread_running_ = false;
     if (log_thread_.joinable())
     {
         log_thread_.join();
@@ -108,7 +100,13 @@ void Logger::LogContent(Levels level, bool on_screen, bool sync, const char *fil
         std::future<bool> future = log_msg->sync_promise->get_future();
         if (EnqueueLogMsg(log_msg))
         {
-            future.get();
+            while (log_thread_running_)
+            {
+                if (std::future_status::ready == future.wait_for(std::chrono::milliseconds(50)))
+                {
+                    break;
+                }
+            }
         }
     }
     else
@@ -119,78 +117,45 @@ void Logger::LogContent(Levels level, bool on_screen, bool sync, const char *fil
 
 bool Logger::EnqueueLogMsg(std::shared_ptr<LogMsg> log_msg)
 {
-    std::lock_guard<std::mutex> lock(log_msgs_mutex_);
-    if (exit_flag_)
+    if (log_msgs_.size_approx() > kLogMsgsMaxSize)
     {
-        log_thread_running_ = false;
-        return false;
+        std::vector<std::shared_ptr<LogMsg>> log_msgs;
+        log_msgs.reserve(kLogMsgsMaxSize);
+        log_msgs_.try_dequeue_bulk(std::back_inserter(log_msgs), kLogMsgsMaxSize);
     }
 
-    if (!enq_log_msgs_.Push(log_msg))
+    if (!log_msgs_.try_enqueue(log_msg))
     {
-        enq_log_msgs_full_ = true;
         return false;
     }
     
     return true;
 }
 
-bool Logger::DequeueLogMsgs()
-{
-    if ((!deq_log_msgs_.Empty()) || (enq_log_msgs_.Empty()))
-    {
-        return false;
-    }
-
-    bool enq_log_msgs_full = enq_log_msgs_full_;
-    {
-        std::lock_guard<std::mutex> lock(log_msgs_mutex_);
-        enq_log_msgs_.Swap(deq_log_msgs_);
-        enq_log_msgs_full_ = false;
-    }
-
-    if (enq_log_msgs_full)
-    {
-        std::shared_ptr<LogMsg> log_msg = nullptr;
-        while (deq_log_msgs_.Pop(log_msg))
-        {
-            if (log_msg->sync_promise)
-            {
-                log_msg->sync_promise->set_value(false);
-            }
-        }
-    }
-
-    return true;
-}
-
 void Logger::LogThread()
 {
-    size_t id = 0;
-    std::shared_ptr<LogMsg> log_msg = nullptr;
-    while (true)
-    {
-        if (deq_log_msgs_.Empty())
-        {
-            if (!DequeueLogMsgs())
-            {
-                if (!log_thread_running_)
-                {
-                    break;
-                }
+    std::vector<std::shared_ptr<LogMsg>> log_msgs;
+    log_msgs.reserve(kLogMsgsMaxSize);
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                continue;
+    while (log_thread_running_)
+    {
+        log_msgs_.try_dequeue_bulk(std::back_inserter(log_msgs), kLogMsgsMaxSize);
+        if (log_msgs.empty())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            continue;
+        }
+
+        for (auto &&log_msg : log_msgs)
+        {
+            PrintLog(*log_msg, utils_->NextId());
+
+            if (log_msg->sync_promise)
+            {
+                log_msg->sync_promise->set_value(true);
             }
         }
-
-        deq_log_msgs_.Pop(log_msg);
-        PrintLog(*log_msg, id++);
-
-        if (log_msg->sync_promise)
-        {
-            log_msg->sync_promise->set_value(true);
-        }
+        log_msgs.clear();
     }
 
     CloseLog();

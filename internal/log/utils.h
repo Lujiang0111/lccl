@@ -17,10 +17,16 @@ public:
     };
 
 public:
-    virtual ~Utils() = default;
-    static Utils &Instance();
+    inline static Utils *Instance()
+    {
+        static Utils instance;
+        return &instance;
+    }
+
+    virtual ~Utils();
 
     const LevelMap &GetLvelMap(Levels level) const;
+    size_t NextId();
 
 private:
     Utils();
@@ -29,6 +35,7 @@ private:
 
 private:
     std::vector<LevelMap> level_maps_;
+    std::atomic<size_t> next_id_;
 };
 
 LCCL_LOG_END_NAMESPACE

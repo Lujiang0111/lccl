@@ -1,11 +1,11 @@
-﻿#ifndef LCCL_INCLUDE_UTILS_JSON_H_
-#define LCCL_INCLUDE_UTILS_JSON_H_
+﻿#ifndef LCCL_INCLUDE_LCCL_OSS_JSON_H_
+#define LCCL_INCLUDE_LCCL_OSS_JSON_H_
 
 #include <cstdint>
 #include <string>
-#include "rapidjson/document.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/writer.h"
+#include "lccl/oss/document.h"
+#include "lccl/oss/rapidjson/stringbuffer.h"
+#include "lccl/oss/rapidjson/writer.h"
 #include "lccl.h"
 
 LCCL_BEGIN_NAMESPACE
@@ -192,4 +192,4 @@ inline void RemoveJsonChild(rapidjson::Value &json_val, const std::string &key)
 
 LCCL_END_NAMESPACE
 
-#endif // !LCCL_INCLUDE_UTILS_JSON_H_
+#endif // !LCCL_INCLUDE_LCCL_OSS_JSON_H_

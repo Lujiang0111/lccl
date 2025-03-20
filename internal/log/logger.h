@@ -1,6 +1,7 @@
 ﻿#ifndef LCCL_INTERNAL_LOG_LOGGER_H_
 #define LCCL_INTERNAL_LOG_LOGGER_H_
 
+#include <atomic>
 #include <fstream>
 #include <future>
 #include <mutex>
@@ -8,7 +9,7 @@
 #include "zlib.h"
 #include "lccl/file.h"
 #include "lccl/log.h"
-#include "lccl/utils/ring_buffer.h"
+#include "lccl/oss/concurrentqueue/concurrentqueue.h"
 #include "log/utils.h"
 
 LCCL_BEGIN_NAMESPACE
@@ -41,7 +42,6 @@ public:
 
 private:
     bool EnqueueLogMsg(std::shared_ptr<LogMsg> log_msg);
-    bool DequeueLogMsgs();
 
     void LogThread();
     void PrintLog(LogMsg &log_msg, size_t id);
@@ -55,18 +55,13 @@ private:
     std::string path_;
     size_t max_size_;
     CompressTypes compress_type_;
-
     Levels max_level_;
     Utils *utils_;
-    bool exit_flag_;
 
     std::thread log_thread_;
     bool log_thread_running_;
 
-    RingBuffer<std::shared_ptr<LogMsg>> enq_log_msgs_;
-    RingBuffer<std::shared_ptr<LogMsg>> deq_log_msgs_;
-    bool enq_log_msgs_full_;
-    std::mutex log_msgs_mutex_;
+    moodycamel::ConcurrentQueue<std::shared_ptr<LogMsg>> log_msgs_;
 
     std::ofstream fout_;
     std::shared_ptr<file::IFileInfo> file_info_;
