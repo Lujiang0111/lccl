@@ -52,6 +52,7 @@ Logger::Logger(const std::string &path, size_t max_size, CompressTypes compress_
     compress_type_(compress_type),
     max_level_(Levels::kNb),
     log_thread_running_(false),
+    log_msgs_(1024),
     file_hour_count_(0),
     file_write_size_(0),
     z_inbuf_(kZlibChunkSize),
@@ -117,13 +118,6 @@ void Logger::LogContent(Levels level, bool on_screen, bool sync, const char *fil
 
 bool Logger::EnqueueLogMsg(std::shared_ptr<LogMsg> log_msg)
 {
-    if (log_msgs_.size_approx() > kLogMsgsMaxSize)
-    {
-        std::vector<std::shared_ptr<LogMsg>> log_msgs;
-        log_msgs.reserve(kLogMsgsMaxSize);
-        log_msgs_.try_dequeue_bulk(std::back_inserter(log_msgs), kLogMsgsMaxSize);
-    }
-
     if (!log_msgs_.try_enqueue(log_msg))
     {
         return false;
