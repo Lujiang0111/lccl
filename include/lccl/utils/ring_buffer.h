@@ -161,20 +161,20 @@ public:
     // 清空环形缓冲区，只能在pop端调用
     void PopClear()
     {
-        size_t write_index = write_index_.load(std::memory_order_acquire);
+        size_t write_index = write_index_.load(std::memory_order_relaxed);
         read_index_.store(write_index, std::memory_order_release);
     }
 
     bool Empty() const
     {
-        return (read_index_.load(std::memory_order_acquire) ==
-            write_index_.load(std::memory_order_acquire));
+        return (read_index_.load(std::memory_order_relaxed) ==
+            write_index_.load(std::memory_order_relaxed));
     }
 
     bool Full() const
     {
-        return ((write_index_.load(std::memory_order_acquire) + 1) & size_mask_) ==
-            read_index_.load(std::memory_order_acquire);
+        return ((write_index_.load(std::memory_order_relaxed) + 1) & size_mask_) ==
+            read_index_.load(std::memory_order_relaxed);
     }
 
 private:
