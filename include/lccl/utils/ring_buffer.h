@@ -1,9 +1,9 @@
-#ifndef LCCL_INCLUDE_LCCL_UTILS_RING_BUFFER_H_
+﻿#ifndef LCCL_INCLUDE_LCCL_UTILS_RING_BUFFER_H_
 #define LCCL_INCLUDE_LCCL_UTILS_RING_BUFFER_H_
 
 #include <algorithm>
-#include <cstddef>
 #include <atomic>
+#include <cstddef>
 #include <vector>
 #include "lccl.h"
 
@@ -114,7 +114,7 @@ class LockFreeRingBuffer
 {
 public:
     LockFreeRingBuffer(size_t power) :
-        size_(static_cast<size_t>(2) << power),
+        size_(static_cast<size_t>(1) << power),
         size_mask_(size_ -1),
         buffer_(size_)
     {
@@ -133,7 +133,7 @@ public:
         size_t next_write_index = (write_index + 1) & size_mask_;
 
         // 判断缓冲区是否已满
-        if (next_write_index == read_index_.load(std::memory_order_acquire))
+        if (next_write_index == read_index_.load(std::memory_order_relaxed))
         {
             return false;
         }
@@ -148,7 +148,7 @@ public:
         size_t read_index = read_index_.load(std::memory_order_relaxed);
 
         // 判断缓冲区是否是空的
-        if (read_index == write_index_.load(std::memory_order_acquire))
+        if (read_index == write_index_.load(std::memory_order_relaxed))
         {
             return false;
         }
@@ -159,7 +159,7 @@ public:
     }
 
     // 清空环形缓冲区，只能在pop端调用
-    bool PopClear()
+    void PopClear()
     {
         size_t write_index = write_index_.load(std::memory_order_acquire);
         read_index_.store(write_index, std::memory_order_release);
@@ -167,13 +167,14 @@ public:
 
     bool Empty() const
     {
-        return (read_index_.load(std::memory_order_relaxed) == write_index_.load(std::memory_order_relaxed));
+        return (read_index_.load(std::memory_order_acquire) ==
+            write_index_.load(std::memory_order_acquire));
     }
 
     bool Full() const
     {
-        size_t next_write_index = (write_index_.load(std::memory_order_relaxed) + 1) & size_mask_;
-        return (next_write_index == read_index_.load(std::memory_order_relaxed));
+        return ((write_index_.load(std::memory_order_acquire) + 1) & size_mask_) ==
+            read_index_.load(std::memory_order_acquire);
     }
 
 private:
