@@ -73,7 +73,7 @@ public:
         return true;
     }
 
-    bool Clear()
+    void Clear()
     {
         read_index_ = write_index_;
     }
