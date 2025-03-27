@@ -1,6 +1,7 @@
 ﻿#ifndef LCCL_INTERNAL_LOG_UTILS_H_
 #define LCCL_INTERNAL_LOG_UTILS_H_
 
+#include <atomic>
 #include <vector>
 #include "lccl/log.h"
 
