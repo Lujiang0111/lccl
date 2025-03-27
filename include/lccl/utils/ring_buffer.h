@@ -31,6 +31,11 @@ public:
 
     }
 
+    virtual ~RingBuffer()
+    {
+
+    }
+
     void Swap(RingBuffer &rhs)
     {
         std::swap(size_, rhs.size_);
@@ -115,6 +120,11 @@ public:
     {
         write_index_.store(0, std::memory_order_relaxed);
         read_index_.store(0, std::memory_order_relaxed);
+    }
+
+    virtual ~LockFreeRingBuffer()
+    {
+
     }
 
     bool Push(const T &item)
