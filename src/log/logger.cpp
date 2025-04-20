@@ -168,7 +168,7 @@ void Logger::PrintLog(LogMsg &log_msg, size_t id)
     ::localtime_r(&time_tt, &time_tm);
 #endif
     int msec = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(log_msg.time_point.time_since_epoch()).count() % 1000);
-    auto &&level_map = utils_->GetLvelMap(log_msg.level);
+    auto &&level_map = utils_->GetLevelMap(log_msg.level);
 
     std::string content;
     if (log_msg.file_name.length() > 0)

@@ -43,9 +43,11 @@ int main(int argc, char **argv)
     case TestTypes::kTestFile:
         TestFile(argc, argv);
         break;
-    default:
+    case TestTypes::kTestLog:
         TestLog(argc, argv);
         break;
+    default:
+        return -1;
     }
 
     return 0;

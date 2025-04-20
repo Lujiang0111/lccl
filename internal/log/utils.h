@@ -4,6 +4,7 @@
 #include <atomic>
 #include <vector>
 #include "lccl/log.h"
+#include "lccl/utils/type_converter.h"
 
 LCCL_BEGIN_NAMESPACE
 LCCL_LOG_BEGIN_NAMESPACE
@@ -26,7 +27,7 @@ public:
 
     virtual ~Utils();
 
-    const LevelMap &GetLvelMap(Levels level) const;
+    const LevelMap &GetLevelMap(Levels level);
     size_t NextId();
 
 private:
@@ -35,7 +36,7 @@ private:
     void InitLevelMaps();
 
 private:
-    std::vector<LevelMap> level_maps_;
+    ToMapping<Levels, LevelMap> level_mapping_;
     std::atomic<size_t> next_id_;
 };
 

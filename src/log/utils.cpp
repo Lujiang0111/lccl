@@ -15,9 +15,9 @@ Utils::~Utils()
 
 }
 
-const Utils::LevelMap &Utils::GetLvelMap(Levels level) const
+const Utils::LevelMap &Utils::GetLevelMap(Levels level)
 {
-    return level_maps_[static_cast<size_t>(level)];
+    return level_mapping_.To(level);
 }
 
 size_t Utils::NextId()
@@ -27,11 +27,12 @@ size_t Utils::NextId()
 
 void Utils::InitLevelMaps()
 {
-    level_maps_.resize(static_cast<size_t>(Levels::kNb));
-    level_maps_[static_cast<size_t>(Levels::kDebug)] = { fmt::terminal_color::bright_green, "D" };
-    level_maps_[static_cast<size_t>(Levels::kInfo)] = { fmt::terminal_color::bright_blue, "I" };
-    level_maps_[static_cast<size_t>(Levels::kWarn)] = { fmt::terminal_color::bright_yellow, "W" };
-    level_maps_[static_cast<size_t>(Levels::kError)] = { fmt::terminal_color::bright_red, "E" };
+    level_mapping_.RegisterMapping({
+        {Levels::kDebug, { fmt::terminal_color::bright_green, "D" }},
+        {Levels::kInfo, { fmt::terminal_color::bright_blue, "I" }},
+        {Levels::kWarn, { fmt::terminal_color::bright_yellow, "W" }},
+        {Levels::kError, { fmt::terminal_color::bright_red, "E" }},
+    });
 }
 
 LCCL_LOG_END_NAMESPACE

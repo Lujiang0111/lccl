@@ -6,7 +6,7 @@ LCCL_LOG_BEGIN_NAMESPACE
 
 static void DefaultLogCallback(Levels level, const char *content, size_t len)
 {
-    fmt::println("[lccl]: {}{:.{}}", Utils::Instance()->GetLvelMap(level).str, static_cast<int>(len), content);
+    fmt::println("[lccl]: {}{:.{}}", Utils::Instance()->GetLevelMap(level).str, static_cast<int>(len), content);
 }
 
 static void (*lib_log_cb)(Levels level, const char *content, size_t len) = DefaultLogCallback;

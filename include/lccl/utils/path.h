@@ -1,5 +1,5 @@
-﻿#ifndef LCCL_INCLUDE_UTILS_PATH_H_
-#define LCCL_INCLUDE_UTILS_PATH_H_
+﻿#ifndef LCCL_INCLUDE_LCCL_UTILS_PATH_H_
+#define LCCL_INCLUDE_LCCL_UTILS_PATH_H_
 
 #include <algorithm>
 #include <string>
@@ -66,4 +66,4 @@ inline std::string OsPathJoin(const std::string &first, const Args&... args)
 
 LCCL_END_NAMESPACE
 
-#endif // !LCCL_INCLUDE_UTILS_PATH_H_
+#endif // !LCCL_INCLUDE_LCCL_UTILS_PATH_H_
