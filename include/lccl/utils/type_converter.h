@@ -13,12 +13,17 @@ template<typename FromType, typename ToType>
 class ToMapping
 {
 public:
-    void RegisterMapping(const std::unordered_map<FromType, ToType> &map)
+    void RegisterItem(const FromType &from_val, const ToType &to_val)
+    {
+        from_map_.emplace(from_val, to_val);
+    }
+
+    void RegisterMap(const std::unordered_map<FromType, ToType> &map)
     {
         from_map_.insert(map.begin(), map.end());
     }
 
-    void RegisterReverseMapping(const std::unordered_map<ToType, FromType> &map)
+    void RegisterReverseMapp(const std::unordered_map<ToType, FromType> &map)
     {
         for (const auto &pair : map)
         {
@@ -45,10 +50,16 @@ template<typename FromType, typename ToType>
 class FromMapping
 {
 public:
-    void RegisterMapping(const std::unordered_map<FromType, ToType> &map)
+    void RegisterItem(const FromType &from_val, const ToType &to_val)
     {
         auto &ptr = GetOrCreateMapping();
-        ptr.RegisterMapping(map);
+        ptr.RegisterItem(from_val, to_val);
+    }
+
+    void RegisterMap(const std::unordered_map<FromType, ToType> &map)
+    {
+        auto &ptr = GetOrCreateMapping();
+        ptr.RegisterMap(map);
     }
 
     const ToType &To(const FromType &from_val)
@@ -89,10 +100,17 @@ class TypeConverter
 {
 public:
     template<typename FromType, typename ToType>
-    void RegisterMapping(const std::unordered_map<FromType, ToType> &map)
+    void RegisterItem(const FromType &from_val, const ToType &to_val)
     {
         auto &ptr = GetOrCreateMapping<FromType, ToType>();
-        ptr.RegisterMapping(map);
+        ptr.RegisterItem(from_val, to_val);
+    }
+
+    template<typename FromType, typename ToType>
+    void RegisterMap(const std::unordered_map<FromType, ToType> &map)
+    {
+        auto &ptr = GetOrCreateMapping<FromType, ToType>();
+        ptr.RegisterMap(map);
     }
 
     template<typename FromType, typename ToType>

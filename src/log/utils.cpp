@@ -27,12 +27,10 @@ size_t Utils::NextId()
 
 void Utils::InitLevelMaps()
 {
-    level_mapping_.RegisterMapping({
-        {Levels::kDebug, { fmt::terminal_color::bright_green, "D" }},
-        {Levels::kInfo, { fmt::terminal_color::bright_blue, "I" }},
-        {Levels::kWarn, { fmt::terminal_color::bright_yellow, "W" }},
-        {Levels::kError, { fmt::terminal_color::bright_red, "E" }},
-    });
+    level_mapping_.RegisterItem(Levels::kDebug, { fmt::terminal_color::bright_green, "D" });
+    level_mapping_.RegisterItem(Levels::kInfo, { fmt::terminal_color::bright_blue, "I" });
+    level_mapping_.RegisterItem(Levels::kWarn, { fmt::terminal_color::bright_yellow, "W" });
+    level_mapping_.RegisterItem(Levels::kError, { fmt::terminal_color::bright_red, "E" });
 }
 
 LCCL_LOG_END_NAMESPACE

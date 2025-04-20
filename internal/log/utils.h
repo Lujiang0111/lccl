@@ -4,7 +4,7 @@
 #include <atomic>
 #include <vector>
 #include "lccl/log.h"
-#include "lccl/utils/type_converter.h"
+#include "lccl/utils/enum_converter.h"
 
 LCCL_BEGIN_NAMESPACE
 LCCL_LOG_BEGIN_NAMESPACE
@@ -36,7 +36,7 @@ private:
     void InitLevelMaps();
 
 private:
-    ToMapping<Levels, LevelMap> level_mapping_;
+    EnumMapping<Levels, LevelMap> level_mapping_;
     std::atomic<size_t> next_id_;
 };
 
