@@ -1,6 +1,7 @@
 ﻿#ifndef LCCL_INCLUDE_LCCL_UTILS_TYPE_CONVERTER_H_
 #define LCCL_INCLUDE_LCCL_UTILS_TYPE_CONVERTER_H_
 
+#include <memory>
 #include <typeindex>
 #include <unordered_map>
 #include "lccl.h"
