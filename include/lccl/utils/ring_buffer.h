@@ -60,7 +60,7 @@ public:
         return true;
     }
 
-    bool Pop(T &item)
+    bool Pop(T &pop_item)
     {
         // 判断缓冲区是否是空的
         if (read_index_ == write_index_)
@@ -68,14 +68,44 @@ public:
             return false;
         }
 
-        item = buffer_[read_index_];
+        pop_item = buffer_[read_index_];
         read_index_ = (read_index_ + 1) & size_mask_;
         return true;
     }
 
-    void Clear()
+    bool PopAndSet(T &pop_item, const T &set_item)
     {
-        read_index_ = write_index_;
+        // 判断缓冲区是否是空的
+        if (read_index_ == write_index_)
+        {
+            return false;
+        }
+
+        pop_item = buffer_[read_index_];
+        buffer_[read_index_] = set_item;
+        read_index_ = (read_index_ + 1) & size_mask_;
+        return true;
+    }
+
+    template<typename BackInsertIt>
+    void PopBulk(BackInsertIt inserter)
+    {
+        while (read_index_ != write_index_)
+        {
+            *inserter = buffer_[read_index_];
+            read_index_ = (read_index_ + 1) & size_mask_;
+        }
+    }
+
+    template<typename BackInsertIt>
+    void PopBulkAndSet(BackInsertIt inserter, const T &set_item)
+    {
+        while (read_index_ != write_index_)
+        {
+            *inserter = buffer_[read_index_];
+            buffer_[read_index_] = set_item;
+            read_index_ = (read_index_ + 1) & size_mask_;
+        }
     }
 
     bool Empty() const
@@ -143,7 +173,7 @@ public:
         return true;
     }
 
-    bool Pop(T &item)
+    bool Pop(T &pop_item)
     {
         size_t read_index = read_index_.load(std::memory_order_relaxed);
 
@@ -153,16 +183,52 @@ public:
             return false;
         }
 
-        item = buffer_[read_index];
+        pop_item = buffer_[read_index];
         read_index_.store((read_index + 1) & size_mask_, std::memory_order_release);
         return true;
     }
 
-    // 清空环形缓冲区，只能在pop端调用
-    void PopClear()
+    bool PopAndSet(T &pop_item, const T &set_item)
     {
+        size_t read_index = read_index_.load(std::memory_order_relaxed);
+
+        // 判断缓冲区是否是空的
+        if (read_index == write_index_.load(std::memory_order_relaxed))
+        {
+            return false;
+        }
+
+        pop_item = buffer_[read_index];
+        buffer_[read_index] = set_item;
+        read_index_.store((read_index + 1) & size_mask_, std::memory_order_release);
+        return true;
+    }
+
+    template<typename BackInsertIt>
+    void PopBulk(BackInsertIt inserter)
+    {
+        size_t read_index = read_index_.load(std::memory_order_relaxed);
         size_t write_index = write_index_.load(std::memory_order_relaxed);
-        read_index_.store(write_index, std::memory_order_release);
+        while (read_index != write_index)
+        {
+            *inserter = buffer_[read_index];
+            read_index = (read_index + 1) & size_mask_;
+        }
+        read_index_.store(read_index, std::memory_order_release);
+    }
+
+    template<typename BackInsertIt>
+    void PopBulkAndSet(BackInsertIt inserter, const T &set_item)
+    {
+        size_t read_index = read_index_.load(std::memory_order_relaxed);
+        size_t write_index = write_index_.load(std::memory_order_relaxed);
+        while (read_index != write_index)
+        {
+            *inserter = buffer_[read_index];
+            buffer_[read_index] = set_item;
+            read_index = (read_index + 1) & size_mask_;
+        }
+        read_index_.store(read_index, std::memory_order_release);
     }
 
     bool Empty() const
