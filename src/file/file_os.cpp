@@ -59,5 +59,11 @@ void RemoveFile(const char *file_name)
     RmOs(adj_file_name, true);
 }
 
+size_t GetPathFreeSpace(const char *path)
+{
+    std::string adj_path = OsPathJoin(path);
+    return GetPathFreeSpaceOs(adj_path);
+}
+
 LCCL_FILE_END_NAMESPACE
 LCCL_END_NAMESPACE

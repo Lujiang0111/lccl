@@ -11,6 +11,8 @@ bool MkdirOs(const std::string &file_name);
 
 void RmOs(const std::string &file_name, bool b_top_dir);
 
+size_t GetPathFreeSpaceOs(const std::string &path);
+
 LCCL_FILE_END_NAMESPACE
 LCCL_END_NAMESPACE
 

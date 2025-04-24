@@ -129,6 +129,17 @@ void RmOs(const std::string &file_name, bool b_top_dir)
     FindClose(file_handle);
 }
 
+size_t GetPathFreeSpaceOs(const std::string &path)
+{
+    ULARGE_INTEGER free_bytes_available, total_bytes, total_free_bytes;
+    if (!GetDiskFreeSpaceEx(path.c_str(), &free_bytes_available, &total_bytes, &total_free_bytes))
+    {
+        return 0;
+    }
+
+    return free_bytes_available.QuadPart;
+}
+
 LCCL_FILE_END_NAMESPACE
 LCCL_END_NAMESPACE
 

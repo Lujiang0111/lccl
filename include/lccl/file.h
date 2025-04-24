@@ -44,6 +44,8 @@ LCCL_API bool CreateDir(const char *file_name, bool parent_only);
 
 LCCL_API void RemoveFile(const char *file_name);
 
+LCCL_API size_t GetPathFreeSpace(const char *path);
+
 LCCL_FILE_END_NAMESPACE
 LCCL_END_NAMESPACE
 

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include "lccl/utils/path.h"
 #include "file/file_info.h"
 #include "log/lib_log.h"
@@ -108,6 +109,17 @@ void RmOs(const std::string &file_name, bool b_top_dir)
     {
         remove(file_name.c_str());
     }
+}
+
+size_t GetPathFreeSpaceOs(const std::string &path)
+{
+    struct statvfs stat_vfs = { 0 };
+    if (0 != statvfs(path.c_str(), &stat_vfs))
+    {
+        return 0;
+    }
+
+    return stat_vfs.f_bavail * stat_vfs.f_frsize;
 }
 
 LCCL_FILE_END_NAMESPACE
