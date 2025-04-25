@@ -64,6 +64,16 @@ inline std::string OsPathJoin(const std::string &first, const Args&... args)
     return AdjustPath(first) + kDirSep + OsPathJoin(args...);
 }
 
+inline std::string GetFolderPath(const std::string &file_path)
+{
+    size_t pos = file_path.find_last_of("/\\");
+    if (std::string::npos != pos)
+    {
+        return file_path.substr(0, pos);
+    }
+    return ".";
+}
+
 LCCL_END_NAMESPACE
 
 #endif // !LCCL_INCLUDE_LCCL_UTILS_PATH_H_
