@@ -47,9 +47,15 @@ LCCL_API std::shared_ptr<ILogger> CreateLogger(const char *path, size_t max_size
 
 LCCL_API ILogger *DefaultLogger();
 
-LCCL_API void SetLibLogCallback(void (*cb)(Levels level, const char *content, size_t len));
+LCCL_API void SetLcclLogCallback(void (*cb)(Levels level, const char *content, size_t len));
 
 LCCL_LOG_END_NAMESPACE
 LCCL_END_NAMESPACE
+
+#define LCCL_DEFAULT_LOG_SYNC(level, fmt, ...) \
+    lccl::log::DefaultLogger()->LogFmt(level, true, true, __FILE__, __LINE__, fmt, ##__VA_ARGS__);
+
+#define LCCL_DEFAULT_LOG_ASYNC(level, fmt, ...) \
+    lccl::log::DefaultLogger()->LogFmt(level, true, false, __FILE__, __LINE__, fmt, ##__VA_ARGS__);
 
 #endif // !LCCL_INCLUDE_LCCL_LOG_H_

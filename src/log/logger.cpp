@@ -4,7 +4,7 @@
 #include <sys/syscall.h>
 #endif
 
-#include "lccl/utils/path.h"
+#include "lccl/utils/path_utils.h"
 #include "log/lib_log.h"
 #include "log/logger.h"
 

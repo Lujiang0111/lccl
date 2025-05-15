@@ -1,5 +1,5 @@
-﻿#ifndef LCCL_INCLUDE_LCCL_UTILS_PATH_H_
-#define LCCL_INCLUDE_LCCL_UTILS_PATH_H_
+﻿#ifndef LCCL_INCLUDE_LCCL_UTILS_PATH_UTILS_H_
+#define LCCL_INCLUDE_LCCL_UTILS_PATH_UTILS_H_
 
 #include <algorithm>
 #include <string>
@@ -76,4 +76,4 @@ inline std::string GetFolderPath(const std::string &file_path)
 
 LCCL_END_NAMESPACE
 
-#endif // !LCCL_INCLUDE_LCCL_UTILS_PATH_H_
+#endif // !LCCL_INCLUDE_LCCL_UTILS_PATH_UTILS_H_

@@ -11,7 +11,7 @@ static void DefaultLogCallback(Levels level, const char *content, size_t len)
 
 static void (*lib_log_cb)(Levels level, const char *content, size_t len) = DefaultLogCallback;
 
-void SetLibLogCallback(void (*cb)(Levels level, const char *content, size_t len))
+void SetLcclLogCallback(void (*cb)(Levels level, const char *content, size_t len))
 {
     lib_log_cb = (cb) ? cb : DefaultLogCallback;
 }
