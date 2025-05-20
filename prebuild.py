@@ -87,7 +87,7 @@ class Prebuild:
 
         # 获取库名及其版本
         if param_cnt >= 8:
-            libs = args[8].split(" ")
+            libs = args[8].strip().split(" ")
             for i in range(1, len(libs), 2):
                 lib_name = libs[i - 1].strip()
                 lib_version = libs[i].strip()

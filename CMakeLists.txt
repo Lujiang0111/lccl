@@ -87,9 +87,10 @@ if(os_name MATCHES "windows")
     target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}/dep/include/zlib
     )
+
     set(prebuild_libs
-        ${prebuild_libs}
-        "zlib 1.3.1"
+        "${prebuild_libs} \
+        zlib 1.3.1"
     )
 
     # 链接特定库
@@ -97,7 +98,6 @@ if(os_name MATCHES "windows")
     target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32)
     target_link_libraries(${PROJECT_NAME} PRIVATE Iphlpapi)
 else()
-
     # 链接特定库
     target_link_libraries(${PROJECT_NAME} PRIVATE z)
 endif()
