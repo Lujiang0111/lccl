@@ -33,5 +33,10 @@ void Utils::InitLevelMaps()
     level_mapping_.RegisterItem(Levels::kError, { fmt::terminal_color::bright_red, "E" });
 }
 
+const char *LevelToString(Levels level)
+{
+    return Utils::Instance()->GetLevelMap(level).str;
+}
+
 LCCL_LOG_END_NAMESPACE
 LCCL_END_NAMESPACE

@@ -20,6 +20,8 @@ enum class Levels
     kNb,
 };
 
+LCCL_API const char *LevelToString(Levels level);
+
 enum class CompressTypes
 {
     kNone = 0,
