@@ -22,11 +22,6 @@ file(GLOB_RECURSE srcs "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 # 创建动态库文件
 add_library(${PROJECT_NAME} SHARED ${srcs})
 
-# 如果PROJECT_NAME已经含有lib，则不要重复添加lib前缀
-if(${PROJECT_NAME} MATCHES "^lib")
-    set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
-endif()
-
 # 设定库版本
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION 1.0 SOVERSION 1)
 
