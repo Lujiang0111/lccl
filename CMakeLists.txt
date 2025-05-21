@@ -4,6 +4,9 @@ project(lccl VERSION 1.0)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
 
+# 设置依赖，确保编译顺序
+add_dependencies(lccl_test lccl)
+
 # 设置 C++ 标准
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
