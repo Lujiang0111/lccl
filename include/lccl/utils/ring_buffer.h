@@ -17,7 +17,7 @@ LCCL_BEGIN_NAMESPACE
 
 // 线程不安全版本
 // 输入冪次，size是2的冪
-template <typename T>
+template <typename T, typename Allocator = std::allocator<T>>
 class RingBuffer
 {
 public:
@@ -132,14 +132,14 @@ private:
     size_t size_;
     size_t size_mask_;
 
-    std::vector<T> buffer_;
+    std::vector<T, Allocator> buffer_;
     size_t write_index_;
     size_t read_index_;
 };
 
 // 单生产者单消费者无锁版本
 // 输入冪次，size是2的冪
-template <typename T>
+template <typename T, typename Allocator = std::allocator<T>>
 class LockFreeRingBuffer
 {
 public:
@@ -247,7 +247,7 @@ private:
     size_t size_;
     size_t size_mask_;
 
-    std::vector<T> buffer_;
+    std::vector<T, Allocator> buffer_;
     std::atomic<size_t> write_index_;
     std::atomic<size_t> read_index_;
 };
