@@ -49,7 +49,9 @@ LCCL_API std::shared_ptr<ILogger> CreateLogger(const char *path, size_t max_size
 
 LCCL_API ILogger *DefaultLogger();
 
-LCCL_API void SetLcclLogCallback(void (*cb)(Levels level, const char *content, size_t len));
+LCCL_API void SetLcclLogCallback(
+    void (*cb)(void *opaque, Levels level, const char *file_name, int file_line, const char *content, size_t len),
+    void *opaque);
 
 LCCL_LOG_END_NAMESPACE
 LCCL_END_NAMESPACE
