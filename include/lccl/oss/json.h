@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <string>
-#include "lccl/oss/document.h"
+#include "lccl/oss/rapidjson/document.h"
 #include "lccl/oss/rapidjson/stringbuffer.h"
 #include "lccl/oss/rapidjson/writer.h"
 #include "lccl.h"
