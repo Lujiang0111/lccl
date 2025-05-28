@@ -18,6 +18,6 @@ inline void LibLogFmt(Levels level, const char *file_name, int file_line, fmt::f
 LCCL_LOG_END_NAMESPACE
 LCCL_END_NAMESPACE
 
-#define LIB_LOG(level, fmt, ...) lccl::log::LibLogFmt(level, __FILE__, __LINE__, fmt, ##__VA_ARGS__);
+#define LIB_LOG(level, fmt, ...) lccl::log::LibLogFmt(level, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 
 #endif // !LCCL_INTERNAL_LOG_LIB_LOG_H_
