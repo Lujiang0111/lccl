@@ -1,0 +1,5 @@
+# test sync log
+./lccl_test 3 0 5 2 1 1
+
+# test async log
+./lccl_test 3 0 5 2 1 0
