@@ -81,7 +81,6 @@ private:
     TypeMapping<DstType, EnumType> reverse_map_;
 };
 
-
 LCCL_END_NAMESPACE
 
 #endif // !LCCL_INCLUDE_LCCL_UTILS_ENUM_UTILS_H_
