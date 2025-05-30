@@ -4,7 +4,7 @@
 #include <atomic>
 #include <vector>
 #include "lccl/log.h"
-#include "lccl/utils/enum_converter.h"
+#include "lccl/utils/enum_utils.h"
 
 LCCL_BEGIN_NAMESPACE
 LCCL_LOG_BEGIN_NAMESPACE
