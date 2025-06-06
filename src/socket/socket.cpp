@@ -323,6 +323,23 @@ bool IsSaMulticast(const sockaddr *sa)
     return false;
 }
 
+bool IpHexToStr(AddrTypes addr_type, const void *ip_hex, char *str)
+{
+    switch (addr_type)
+    {
+    case lccl::skt::AddrTypes::kIpv4:
+        inet_ntop(AF_INET, ip_hex, str, INET_ADDRSTRLEN);
+        break;
+    case lccl::skt::AddrTypes::kIpv6:
+        inet_ntop(AF_INET6, ip_hex, str, INET6_ADDRSTRLEN);
+        break;
+    default:
+        return false;
+    }
+
+    return true;
+}
+
 bool SetBlockMode(int fd, bool block)
 {
 #if defined(_MSC_VER)

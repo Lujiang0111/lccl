@@ -36,6 +36,11 @@ public:
 
     virtual int Compare(IAddr *rhs) = 0;
 
+    virtual int Bind(int fd) = 0;
+    virtual int Connect(int fd) = 0;
+    virtual int MulticastIf(int fd) = 0;
+
+    // 组播
     virtual bool JoinMulticastGroup(int fd, IAddr *group_addr) = 0;
     virtual bool DropMulticastGroup(int fd, IAddr *group_addr) = 0;
 
@@ -63,9 +68,12 @@ LCCL_API int CompareIp(const char *lhs_ip, const char *rhs_ip);
 LCCL_API AddrTypes GetIpType(const char *ip);
 LCCL_API bool IsIpMulticast(const char *ip);
 
+// 只比较IP部分
 LCCL_API int CompareSa(const sockaddr *lhs_sa, const sockaddr *rhs_sa);
 LCCL_API AddrTypes GetSaType(const sockaddr *sa);
 LCCL_API bool IsSaMulticast(const sockaddr *sa);
+
+LCCL_API bool IpHexToStr(AddrTypes addr_type, const void *ip_hex, char *str);
 
 LCCL_API bool SetBlockMode(int fd, bool block);
 LCCL_API bool SetTTL(int fd, int ttl);

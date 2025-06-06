@@ -79,6 +79,21 @@ int V6Addr::Compare(IAddr *rhs)
     return CompareSa(GetNative(), rhs->GetNative());
 }
 
+int V6Addr::Bind(int fd)
+{
+    return bind(fd, reinterpret_cast<const struct sockaddr *>(&sa6_), sizeof(sa6_));
+}
+
+int V6Addr::Connect(int fd)
+{
+    return connect(fd, reinterpret_cast<const struct sockaddr *>(&sa6_), sizeof(sa6_));
+}
+
+int V6Addr::MulticastIf(int fd)
+{
+    return setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, reinterpret_cast<const char *>(&dev_num_), sizeof(dev_num_));
+}
+
 bool V6Addr::JoinMulticastGroup(int fd, IAddr *group_addr)
 {
     V6Addr *group_v6_addr = dynamic_cast<V6Addr *>(group_addr);

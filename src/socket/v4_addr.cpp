@@ -77,6 +77,21 @@ int V4Addr::Compare(IAddr *rhs)
     return CompareSa(GetNative(), rhs->GetNative());
 }
 
+int V4Addr::Bind(int fd)
+{
+    return bind(fd, reinterpret_cast<const struct sockaddr *>(&sa4_), sizeof(sa4_));
+}
+
+int V4Addr::Connect(int fd)
+{
+    return connect(fd, reinterpret_cast<const struct sockaddr *>(&sa4_), sizeof(sa4_));
+}
+
+int V4Addr::MulticastIf(int fd)
+{
+    return setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<const char *>(&sa4_.sin_addr), sizeof(sa4_.sin_addr));
+}
+
 bool V4Addr::JoinMulticastGroup(int fd, IAddr *group_addr)
 {
     V4Addr *group_v4_addr = dynamic_cast<V4Addr *>(group_addr);

@@ -31,6 +31,10 @@ public:
 
     virtual int Compare(IAddr *rhs);
 
+    virtual int Bind(int fd);
+    virtual int Connect(int fd);
+    virtual int MulticastIf(int fd);
+
     virtual bool JoinMulticastGroup(int fd, IAddr *group_addr);
     virtual bool DropMulticastGroup(int fd, IAddr *group_addr);
 
