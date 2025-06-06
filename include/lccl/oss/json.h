@@ -1,7 +1,6 @@
 ﻿#ifndef LCCL_INCLUDE_LCCL_OSS_JSON_H_
 #define LCCL_INCLUDE_LCCL_OSS_JSON_H_
 
-#include <cstdint>
 #include <string>
 #include "lccl/oss/rapidjson/document.h"
 #include "lccl/oss/rapidjson/stringbuffer.h"
@@ -14,8 +13,12 @@ inline bool ParseJsonToString(const rapidjson::Value &json_val, std::string &str
 {
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    json_val.Accept(writer);
-    str = buffer.GetString();
+    if (!json_val.Accept(writer))
+    {
+        return false;
+    }
+
+    str.assign(buffer.GetString(), buffer.GetSize());
     return true;
 }
 
@@ -43,127 +46,144 @@ inline bool ParseStringToJson(rapidjson::Value &json_val, const std::string &str
     return true;
 }
 
+inline rapidjson::Value::ConstMemberIterator::Pointer GetJsonChildPointer(const rapidjson::Value &json_val, const std::string &key)
+{
+    if (!json_val.IsObject())
+    {
+        return nullptr;
+    }
+
+    auto &&iter = json_val.FindMember(key.c_str());
+    if (json_val.MemberEnd() == iter)
+    {
+        return nullptr;
+    }
+    return iter.operator->();
+}
+
 inline bool IsJsonChildValid(const rapidjson::Value &json_val, const std::string &key, rapidjson::Type type)
 {
-    if ((!json_val.IsObject()) || (!json_val.HasMember(key.c_str())) || (json_val[key.c_str()].IsNull()))
+    rapidjson::Value::ConstMemberIterator::Pointer val_pointer = GetJsonChildPointer(json_val, key);
+    if (!val_pointer)
     {
         return false;
     }
 
-    const rapidjson::Value &json_child_val = json_val[key.c_str()];
-    return (json_child_val.GetType() == type);
+    return (val_pointer->value.GetType() == type);
 }
 
-inline bool GetJsonChildNumber(const rapidjson::Value &json_val, const std::string &key, int &val)
+template<typename T>
+inline typename std::enable_if<std::is_signed<T>::value, bool>::type
+GetJsonChild(const rapidjson::Value &json_val, const std::string &key, T &val)
 {
-    if (!IsJsonChildValid(json_val, key, rapidjson::kNumberType))
+    rapidjson::Value::ConstMemberIterator::Pointer val_pointer = GetJsonChildPointer(json_val, key);
+    if (!val_pointer)
+    {
+        return false;
+    }
+    const rapidjson::Value &child_val = val_pointer->value;
+
+    if (!child_val.IsInt64())
     {
         return false;
     }
 
-    val = json_val[key.c_str()].GetInt();
+    val = static_cast<T>(val_pointer->value.GetInt64());
     return true;
 }
 
-inline bool GetJsonChildNumber(const rapidjson::Value &json_val, const std::string &key, int64_t &val)
+template<typename T>
+inline typename std::enable_if<std::is_unsigned<T>::value, bool>::type
+GetJsonChild(const rapidjson::Value &json_val, const std::string &key, T &val)
 {
-    if (!IsJsonChildValid(json_val, key, rapidjson::kNumberType))
+    rapidjson::Value::ConstMemberIterator::Pointer val_pointer = GetJsonChildPointer(json_val, key);
+    if (!val_pointer)
+    {
+        return false;
+    }
+    const rapidjson::Value &child_val = val_pointer->value;
+
+    if (!child_val.IsUint64())
     {
         return false;
     }
 
-    val = json_val[key.c_str()].GetInt64();
+    val = static_cast<T>(child_val.GetUint64());
     return true;
 }
 
-inline bool GetJsonChildBool(const rapidjson::Value &json_val, const std::string &key, bool &val)
+inline bool GetJsonChild(const rapidjson::Value &json_val, const std::string &key, bool &val)
 {
-    if ((!IsJsonChildValid(json_val, key, rapidjson::kTrueType)) &&
-        (!IsJsonChildValid(json_val, key, rapidjson::kFalseType)))
+    rapidjson::Value::ConstMemberIterator::Pointer val_pointer = GetJsonChildPointer(json_val, key);
+    if (!val_pointer)
+    {
+        return false;
+    }
+    const rapidjson::Value &child_val = val_pointer->value;
+
+    if (!child_val.IsBool())
     {
         return false;
     }
 
-    val = json_val[key.c_str()].GetBool();
+    val = child_val.GetBool();
     return true;
 }
 
-inline bool GetJsonChildString(const rapidjson::Value &json_val, const std::string &key, std::string &val)
+inline bool GetJsonChild(const rapidjson::Value &json_val, const std::string &key, std::string &val)
 {
-    if (!IsJsonChildValid(json_val, key, rapidjson::kStringType))
+    rapidjson::Value::ConstMemberIterator::Pointer val_pointer = GetJsonChildPointer(json_val, key);
+    if (!val_pointer)
+    {
+        return false;
+    }
+    const rapidjson::Value &child_val = val_pointer->value;
+
+    if (!child_val.IsString())
     {
         return false;
     }
 
-    val = json_val[key.c_str()].GetString();
+    val = child_val.GetString();
     return true;
 }
 
-inline void SetJsonChildNumber(rapidjson::Document &json_doc, const std::string &key, int64_t val)
+template<typename T>
+inline typename std::enable_if<std::is_signed<T>::value, void>::type
+SetJsonChild(rapidjson::Value &json_val, rapidjson::Document::AllocatorType &allocator, const std::string &key, T val)
 {
-    auto &&allocator = json_doc.GetAllocator();
-    json_doc.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
-        rapidjson::Value(val).Move(),
+    json_val.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
+        rapidjson::Value(static_cast<int64_t>(val)).Move(),
         allocator);
 }
 
-inline void SetJsonChildNumber(rapidjson::Value &json_val, rapidjson::Document::AllocatorType &allocator, const std::string &key, int64_t val)
+template<typename T>
+inline typename std::enable_if<std::is_unsigned<T>::value, void>::type
+SetJsonChild(rapidjson::Value &json_val, rapidjson::Document::AllocatorType &allocator, const std::string &key, T val)
+{
+    json_val.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
+        rapidjson::Value(static_cast<uint64_t>(val)).Move(),
+        allocator);
+}
+
+inline void SetJsonChild(rapidjson::Value &json_val, rapidjson::Document::AllocatorType &allocator, const std::string &key, bool val)
 {
     json_val.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
         rapidjson::Value(val).Move(),
         allocator);
 }
 
-inline void SetJsonChildBool(rapidjson::Document &json_doc, const std::string &key, bool val)
-{
-    auto &&allocator = json_doc.GetAllocator();
-    json_doc.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
-        rapidjson::Value(val).Move(),
-        allocator);
-}
-
-inline void SetJsonChildBool(rapidjson::Value &json_val, rapidjson::Document::AllocatorType &allocator, const std::string &key, bool val)
+inline void SetJsonChild(rapidjson::Value &json_val, rapidjson::Document::AllocatorType &allocator, const std::string &key, const std::string &val)
 {
     json_val.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
-        rapidjson::Value(val).Move(),
-        allocator);
-}
-
-inline void SetJsonChildString(rapidjson::Document &json_doc, const std::string &key, const std::string &val)
-{
-    auto &&allocator = json_doc.GetAllocator();
-    json_doc.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
         rapidjson::Value(val.c_str(), allocator).Move(),
         allocator);
 }
 
-inline void SetJsonChildString(rapidjson::Value &json_val, rapidjson::Document::AllocatorType &allocator, const std::string &key, const std::string &val)
-{
-    json_val.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
-        rapidjson::Value(val.c_str(), allocator).Move(),
-        allocator);
-}
-
-inline void SetJsonChildObject(rapidjson::Document &json_doc, const std::string &key, rapidjson::Value &json_child_val)
-{
-    auto &&allocator = json_doc.GetAllocator();
-    json_doc.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
-        json_child_val,
-        allocator);
-}
-
-inline void SetJsonChildObject(rapidjson::Value &json_val, rapidjson::Document::AllocatorType &allocator, const std::string &key, rapidjson::Value &json_child_val)
+inline void SetJsonChild(rapidjson::Value &json_val, rapidjson::Document::AllocatorType &allocator, const std::string &key, rapidjson::Value &json_child_val)
 {
     json_val.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
         json_child_val,
-        allocator);
-}
-
-inline void SetJsonChildNull(rapidjson::Document &json_doc, const std::string &key)
-{
-    auto &&allocator = json_doc.GetAllocator();
-    json_doc.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
-        rapidjson::Value().SetNull().Move(),
         allocator);
 }
 
@@ -172,14 +192,6 @@ inline void SetJsonChildNull(rapidjson::Value &json_val, rapidjson::Document::Al
     json_val.AddMember(rapidjson::Value(key.c_str(), allocator).Move(),
         rapidjson::Value().SetNull().Move(),
         allocator);
-}
-
-inline void RemoveJsonChild(rapidjson::Document &json_doc, const std::string &key)
-{
-    if (json_doc.HasMember(key.c_str()))
-    {
-        json_doc.RemoveMember(key.c_str());
-    }
 }
 
 inline void RemoveJsonChild(rapidjson::Value &json_val, const std::string &key)
