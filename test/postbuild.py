@@ -58,7 +58,7 @@ def create_so_link(dir) -> None:
             )
 
 
-class Prebuild:
+class Postbuild:
     __os_name = None
     __os_version = None
     __os_arch = None
@@ -88,7 +88,7 @@ class Prebuild:
 
         # 获取库名及其版本
         if param_cnt >= 8:
-            libs = args[8].split(" ")
+            libs = args[8].strip().split(" ")
             for i in range(1, len(libs), 2):
                 lib_name = libs[i - 1].strip()
                 lib_version = libs[i].strip()
@@ -166,5 +166,5 @@ class Prebuild:
 
 # 程序入口
 if __name__ == "__main__":
-    prebuild = Prebuild()
+    prebuild = Postbuild()
     prebuild.main(sys.argv)
