@@ -144,7 +144,7 @@ std::shared_ptr<IFileMmap> CreateFileMmap(const char *file_name)
     std::shared_ptr<FileMmap> h = std::make_shared<FileMmap>();
     if (!h->Init(file_name))
     {
-        return false;
+        return nullptr;
     }
 
     return h;
