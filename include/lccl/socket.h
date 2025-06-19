@@ -68,7 +68,7 @@ LCCL_API int CompareIp(const char *lhs_ip, const char *rhs_ip);
 LCCL_API AddrTypes GetIpType(const char *ip);
 LCCL_API bool IsIpMulticast(const char *ip);
 
-// 只比较IP部分
+// 只比较sa的IP部分
 LCCL_API int CompareSa(const sockaddr *lhs_sa, const sockaddr *rhs_sa);
 LCCL_API AddrTypes GetSaType(const sockaddr *sa);
 LCCL_API bool IsSaMulticast(const sockaddr *sa);
