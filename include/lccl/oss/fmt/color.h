@@ -10,7 +10,7 @@
 
 #include "format.h"
 
-FMT_BEGIN_NAMESPACE
+FMT_NAMESPACE_BEGIN
 FMT_BEGIN_EXPORT
 
 enum class color : uint32_t {
@@ -605,6 +605,6 @@ FMT_CONSTEXPR auto styled(const T& value, text_style ts)
 }
 
 FMT_END_EXPORT
-FMT_END_NAMESPACE
+FMT_NAMESPACE_END
 
 #endif  // FMT_COLOR_H_

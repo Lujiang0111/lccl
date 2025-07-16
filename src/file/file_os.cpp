@@ -2,8 +2,8 @@
 #include "file/file_os.h"
 #include "log/lib_log.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_FILE_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_FILE_NAMESPACE_BEGIN
 
 bool CreateDir(const char *file_name, bool parent_only)
 {
@@ -65,5 +65,5 @@ size_t GetPathFreeSpace(const char *path)
     return GetPathFreeSpaceOs(adj_path);
 }
 
-LCCL_FILE_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_FILE_NAMESPACE_END
+LCCL_NAMESPACE_END

@@ -11,7 +11,7 @@
 #define STRINGIFY(x) #x
 #define GET_VERSION(x, y) STRINGIFY(x) "." STRINGIFY(y)
 
-LCCL_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
 
 const char *GetVersion()
 {
@@ -19,4 +19,4 @@ const char *GetVersion()
     return version;
 }
 
-LCCL_END_NAMESPACE
+LCCL_NAMESPACE_END

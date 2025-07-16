@@ -4,8 +4,8 @@
 #include <map>
 #include "lccl/event.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_EVENT_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_EVENT_NAMESPACE_BEGIN
 
 class SelectMultiplex : public IMultiplex
 {
@@ -40,8 +40,8 @@ private:
     std::map<int, std::shared_ptr<Handler>> handlers_;
 };
 
-LCCL_EVENT_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_EVENT_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 
 #endif // !LCCL_INTERNAL_EVENT_SELECT_MULTIPLEX_H_

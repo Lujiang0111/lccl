@@ -131,7 +131,7 @@ template <typename T> struct iterator_traits<fmt::basic_appender<T>> {
 #ifndef FMT_THROW
 #  if FMT_USE_EXCEPTIONS
 #    if FMT_MSC_VERSION || defined(__NVCC__)
-FMT_BEGIN_NAMESPACE
+FMT_NAMESPACE_BEGIN
 namespace detail {
 template <typename Exception> inline void do_throw(const Exception& x) {
   // Silence unreachable code warnings in MSVC and NVCC because these
@@ -140,7 +140,7 @@ template <typename Exception> inline void do_throw(const Exception& x) {
   if (b) throw x;
 }
 }  // namespace detail
-FMT_END_NAMESPACE
+FMT_NAMESPACE_END
 #      define FMT_THROW(x) detail::do_throw(x)
 #    else
 #      define FMT_THROW(x) throw x
@@ -159,7 +159,7 @@ FMT_END_NAMESPACE
 #  define FMT_REDUCE_INT_INSTANTIATIONS 0
 #endif
 
-FMT_BEGIN_NAMESPACE
+FMT_NAMESPACE_BEGIN
 
 template <typename Char, typename Traits, typename Allocator>
 struct is_contiguous<std::basic_string<Char, Traits, Allocator>>
@@ -4198,7 +4198,7 @@ FMT_NODISCARD auto to_string(const T& value) -> std::string {
 }
 
 FMT_END_EXPORT
-FMT_END_NAMESPACE
+FMT_NAMESPACE_END
 
 #ifdef FMT_HEADER_ONLY
 #  define FMT_FUNC inline

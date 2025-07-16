@@ -1,8 +1,8 @@
 ﻿#include "event/epoll_multiplex.h"
 #include "event/select_multiplex.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_EVENT_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_EVENT_NAMESPACE_BEGIN
 
 std::shared_ptr<IMultiplex> CreateMultiplex(MultiplexTypes type, int timeout_ms)
 {
@@ -34,5 +34,5 @@ std::shared_ptr<IMultiplex> CreateMultiplex(MultiplexTypes type, int timeout_ms)
     return h;
 }
 
-LCCL_EVENT_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_EVENT_NAMESPACE_END
+LCCL_NAMESPACE_END

@@ -1083,14 +1083,14 @@ typedef long double max_align_t ;
 
 //------------------------------------------------------------
 
-#define _C4_BEGIN_NAMESPACE(ns) namespace ns {
-#define _C4_END_NAMESPACE(ns)   }
+#define _C4_NAMESPACE_BEGIN(ns) namespace ns {
+#define _C4_NAMESPACE_END(ns)   }
 
 // MSVC cant handle the C4_FOR_EACH macro... need to fix this
-//#define C4_BEGIN_NAMESPACE(...) C4_FOR_EACH_SEP(_C4_BEGIN_NAMESPACE, , __VA_ARGS__)
-//#define C4_END_NAMESPACE(...) C4_FOR_EACH_SEP(_C4_END_NAMESPACE, , __VA_ARGS__)
-#define C4_BEGIN_NAMESPACE(ns) namespace ns {
-#define C4_END_NAMESPACE(ns) }
+//#define C4_NAMESPACE_BEGIN(...) C4_FOR_EACH_SEP(_C4_NAMESPACE_BEGIN, , __VA_ARGS__)
+//#define C4_NAMESPACE_END(...) C4_FOR_EACH_SEP(_C4_NAMESPACE_END, , __VA_ARGS__)
+#define C4_NAMESPACE_BEGIN(ns) namespace ns {
+#define C4_NAMESPACE_END(ns) }
 
 #define C4_BEGIN_HIDDEN_NAMESPACE namespace /*hidden*/ {
 #define C4_END_HIDDEN_NAMESPACE } /* namespace hidden */

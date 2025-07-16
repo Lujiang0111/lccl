@@ -5,7 +5,7 @@
 #include <string>
 #include "lccl.h"
 
-LCCL_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
 
 constexpr char kDirSeps[] = { '\\', '/' };
 
@@ -74,6 +74,6 @@ inline std::string GetFolderPath(const std::string &file_path)
     return ".";
 }
 
-LCCL_END_NAMESPACE
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INCLUDE_LCCL_UTILS_PATH_UTILS_H_

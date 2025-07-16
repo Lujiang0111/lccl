@@ -11,8 +11,8 @@
 #include "log/lib_log.h"
 #include "socket/v4_addr.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_SOCKET_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_SOCKET_NAMESPACE_BEGIN
 
 V4Addr::V4Addr() :
     port_(0),
@@ -311,5 +311,5 @@ bool V4Addr::ParseSa(bool local)
     return true;
 }
 
-LCCL_SOCKET_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_SOCKET_NAMESPACE_END
+LCCL_NAMESPACE_END

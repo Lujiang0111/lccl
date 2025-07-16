@@ -6,8 +6,8 @@
 #include "file/file_info.h"
 #include "log/lib_log.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_FILE_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_FILE_NAMESPACE_BEGIN
 
 std::shared_ptr<FileInfo> FileInfo::FindFileInfo(const std::string &file_name)
 {
@@ -140,7 +140,7 @@ size_t GetPathFreeSpaceOs(const std::string &path)
     return free_bytes_available.QuadPart;
 }
 
-LCCL_FILE_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_FILE_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 #endif

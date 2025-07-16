@@ -2,8 +2,8 @@
 #include "lccl/socket.h"
 #include "event/select_multiplex.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_EVENT_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_EVENT_NAMESPACE_BEGIN
 
 SelectMultiplex::SelectMultiplex(int timeout_ms) :
     timeout_ms_(timeout_ms),
@@ -143,5 +143,5 @@ int SelectMultiplex::ExecuteOnce()
     return select_ret;
 }
 
-LCCL_EVENT_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_EVENT_NAMESPACE_END
+LCCL_NAMESPACE_END

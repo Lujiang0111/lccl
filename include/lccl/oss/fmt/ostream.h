@@ -30,7 +30,7 @@
 #  define FMT_MSVC_STL_UPDATE 0
 #endif
 
-FMT_BEGIN_NAMESPACE
+FMT_NAMESPACE_BEGIN
 namespace detail {
 
 // Generate a unique explicit instantion in every translation unit using a tag
@@ -161,6 +161,6 @@ void println(std::ostream& os, format_string<T...> fmt, T&&... args) {
   fmt::print(os, "{}\n", fmt::format(fmt, std::forward<T>(args)...));
 }
 
-FMT_END_NAMESPACE
+FMT_NAMESPACE_END
 
 #endif  // FMT_OSTREAM_H_

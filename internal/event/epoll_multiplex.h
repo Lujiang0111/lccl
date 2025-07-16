@@ -8,8 +8,8 @@
 #include <vector>
 #include "lccl/event.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_EVENT_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_EVENT_NAMESPACE_BEGIN
 
 class EpollMultiplex : public IMultiplex
 {
@@ -46,8 +46,8 @@ private:
     std::vector<epoll_event> epoll_events_;
 };
 
-LCCL_EVENT_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_EVENT_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 #endif
 

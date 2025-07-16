@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include "lccl.h"
 
-LCCL_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
 
 // 基础映射类
 template<typename SrcType, typename DstType>
@@ -81,6 +81,6 @@ private:
     TypeMapping<DstType, EnumType> reverse_map_;
 };
 
-LCCL_END_NAMESPACE
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INCLUDE_LCCL_UTILS_ENUM_UTILS_H_

@@ -5,8 +5,8 @@
 #include <vector>
 #include "lccl/file.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_FILE_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_FILE_NAMESPACE_BEGIN
 
 class FileMmap : public IFileMmap
 {
@@ -34,7 +34,7 @@ private:
     size_t size_;
 };
 
-LCCL_FILE_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_FILE_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INTERNAL_FILE_FILE_MMAP_H_

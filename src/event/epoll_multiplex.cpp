@@ -4,8 +4,8 @@
 #include "lccl/socket.h"
 #include "event/epoll_multiplex.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_EVENT_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_EVENT_NAMESPACE_BEGIN
 
 EpollMultiplex::EpollMultiplex(int timeout_ms) :
     timeout_ms_(timeout_ms)
@@ -144,7 +144,7 @@ int EpollMultiplex::ExecuteOnce()
     return nfds;
 }
 
-LCCL_EVENT_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_EVENT_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 #endif

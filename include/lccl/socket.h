@@ -9,11 +9,11 @@
 
 #include "lccl.h"
 
-#define LCCL_SOCKET_BEGIN_NAMESPACE namespace skt {
-#define LCCL_SOCKET_END_NAMESPACE }
+#define LCCL_SOCKET_NAMESPACE_BEGIN namespace skt {
+#define LCCL_SOCKET_NAMESPACE_END }
 
-LCCL_BEGIN_NAMESPACE
-LCCL_SOCKET_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_SOCKET_NAMESPACE_BEGIN
 
 enum class AddrTypes
 {
@@ -86,7 +86,7 @@ LCCL_API bool SetTTL(int fd, int ttl);
 */
 LCCL_API bool SetKeepAlive(int fd, bool on, int idle, int interval, int count);
 
-LCCL_SOCKET_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_SOCKET_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INCLUDE_LCCL_SOCK_H_

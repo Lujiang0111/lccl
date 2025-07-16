@@ -3,8 +3,8 @@
 
 #include "lccl/log.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_LOG_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_LOG_NAMESPACE_BEGIN
 
 void LibLogContent(Levels level, const char *file_name, int file_line, const char *content, size_t len);
 
@@ -15,8 +15,8 @@ inline void LibLogFmt(Levels level, const char *file_name, int file_line, fmt::f
     LibLogContent(level, file_name, file_line, content.c_str(), content.length());
 }
 
-LCCL_LOG_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_LOG_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 #define LIB_LOG(level, fmt, ...) lccl::log::LibLogFmt(level, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 

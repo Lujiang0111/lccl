@@ -37,7 +37,7 @@ template <typename... T> inline auto current_zone(T...) -> time_zone* {
 template <typename... T> inline void _tzset(T...) {}
 }  // namespace fmt_detail
 
-FMT_BEGIN_NAMESPACE
+FMT_NAMESPACE_BEGIN
 
 // Enable safe chrono durations, unless explicitly disabled.
 #ifndef FMT_SAFE_DURATION_CAST
@@ -2333,6 +2333,6 @@ struct formatter<local_time<Duration>, Char> : formatter<std::tm, Char> {
 };
 
 FMT_END_EXPORT
-FMT_END_NAMESPACE
+FMT_NAMESPACE_END
 
 #endif  // FMT_CHRONO_H_

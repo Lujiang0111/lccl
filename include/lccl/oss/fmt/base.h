@@ -249,11 +249,11 @@
 #  define FMT_MSC_WARNING(...)
 #endif
 
-#ifndef FMT_BEGIN_NAMESPACE
-#  define FMT_BEGIN_NAMESPACE \
+#ifndef FMT_NAMESPACE_BEGIN
+#  define FMT_NAMESPACE_BEGIN \
     namespace fmt {           \
     inline namespace v11 {
-#  define FMT_END_NAMESPACE \
+#  define FMT_NAMESPACE_END \
     }                       \
     }
 #endif
@@ -304,7 +304,7 @@ FMT_PRAGMA_GCC(optimize("Og"))
 #endif
 FMT_PRAGMA_CLANG(diagnostic push)
 
-FMT_BEGIN_NAMESPACE
+FMT_NAMESPACE_BEGIN
 
 // Implementations of enable_if_t and other metafunctions for older systems.
 template <bool B, typename T = void>
@@ -2953,7 +2953,7 @@ FMT_INLINE void println(format_string<T...> fmt, T&&... args) {
 FMT_END_EXPORT
 FMT_PRAGMA_CLANG(diagnostic pop)
 FMT_PRAGMA_GCC(pop_options)
-FMT_END_NAMESPACE
+FMT_NAMESPACE_END
 
 #ifdef FMT_HEADER_ONLY
 #  include "format.h"

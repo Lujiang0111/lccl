@@ -3,11 +3,11 @@
 
 #include "lccl.h"
 
-#define LCCL_FILE_BEGIN_NAMESPACE namespace file {
-#define LCCL_FILE_END_NAMESPACE }
+#define LCCL_FILE_NAMESPACE_BEGIN namespace file {
+#define LCCL_FILE_NAMESPACE_END }
 
-LCCL_BEGIN_NAMESPACE
-LCCL_FILE_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_FILE_NAMESPACE_BEGIN
 
 enum class FileModes
 {
@@ -57,7 +57,7 @@ LCCL_API void RemoveFile(const char *file_name);
 
 LCCL_API size_t GetPathFreeSpace(const char *path);
 
-LCCL_FILE_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_FILE_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INCLUDE_LCCL_FILE_H_

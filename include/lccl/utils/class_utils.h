@@ -4,7 +4,7 @@
 #include <utility>
 #include "lccl.h"
 
-LCCL_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
 
 template <typename T, typename... Args>
 std::shared_ptr<T> MakeSharedProtected(Args &&...args)
@@ -26,6 +26,6 @@ std::shared_ptr<T> AllocateSharedProtected(const Allocator &alloc, Args &&...arg
     return std::allocate_shared<Enabler>(alloc, std::forward<Args>(args)...);
 }
 
-LCCL_END_NAMESPACE
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INCLUDE_LCCL_UTILS_CLASS_UTILS_H_

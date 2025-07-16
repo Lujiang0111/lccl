@@ -6,7 +6,7 @@
 #include <string>
 #include "lccl.h"
 
-LCCL_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
 
 inline std::string TrimString(const std::string &str)
 {
@@ -20,6 +20,6 @@ inline std::string TrimString(const std::string &str)
     return (start < end) ? std::string(start, end) : std::string();
 }
 
-LCCL_END_NAMESPACE
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INCLUDE_LCCL_UTILS_STRING_UTILS_H_

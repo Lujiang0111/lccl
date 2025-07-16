@@ -8,8 +8,8 @@
 #include "log/lib_log.h"
 #include "log/logger.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_LOG_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_LOG_NAMESPACE_BEGIN
 
 constexpr size_t kLogMsgsMaxSize = 1000;
 constexpr size_t kZlibChunkSize = 16 * 1024;
@@ -408,5 +408,5 @@ ILogger *DefaultLogger()
     return default_logger.get();
 }
 
-LCCL_LOG_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_LOG_NAMESPACE_END
+LCCL_NAMESPACE_END

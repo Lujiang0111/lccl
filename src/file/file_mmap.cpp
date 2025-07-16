@@ -11,8 +11,8 @@
 #include "file/file_mmap.h"
 #include "log/lib_log.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_FILE_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_FILE_NAMESPACE_BEGIN
 
 FileMmap::FileMmap() :
 #if defined(_MSC_VER)
@@ -150,5 +150,5 @@ std::shared_ptr<IFileMmap> CreateFileMmap(const char *file_name)
     return h;
 }
 
-LCCL_FILE_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_FILE_NAMESPACE_END
+LCCL_NAMESPACE_END

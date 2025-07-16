@@ -15,7 +15,7 @@
 
 #include "format.h"
 
-FMT_BEGIN_NAMESPACE
+FMT_NAMESPACE_BEGIN
 FMT_BEGIN_EXPORT
 
 template <typename T> struct printf_formatter {
@@ -628,6 +628,6 @@ FMT_DEPRECATED inline auto printf(basic_string_view<wchar_t> fmt,
 }
 
 FMT_END_EXPORT
-FMT_END_NAMESPACE
+FMT_NAMESPACE_END
 
 #endif  // FMT_PRINTF_H_

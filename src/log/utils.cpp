@@ -1,8 +1,8 @@
 ﻿#include <cassert>
 #include "log/utils.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_LOG_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_LOG_NAMESPACE_BEGIN
 
 Utils::Utils() :
     next_id_(0)
@@ -38,5 +38,5 @@ const char *LevelToString(Levels level)
     return Utils::Instance()->GetLevelMap(level).str;
 }
 
-LCCL_LOG_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_LOG_NAMESPACE_END
+LCCL_NAMESPACE_END

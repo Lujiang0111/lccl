@@ -12,8 +12,8 @@
 #include "lccl/oss/concurrentqueue/concurrentqueue.h"
 #include "log/utils.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_LOG_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_LOG_NAMESPACE_BEGIN
 
 struct LogMsg
 {
@@ -75,7 +75,7 @@ private:
     std::vector<uint8_t> z_outbuf_;
 };
 
-LCCL_LOG_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_LOG_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INTERNAL_LOG_LOGGER_H_

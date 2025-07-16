@@ -7,7 +7,7 @@
 #include "lccl/oss/rapidjson/writer.h"
 #include "lccl.h"
 
-LCCL_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
 
 inline bool ParseJsonToString(const rapidjson::Value &json_val, std::string &str)
 {
@@ -202,6 +202,6 @@ inline void RemoveJsonChild(rapidjson::Value &json_val, const std::string &key)
     }
 }
 
-LCCL_END_NAMESPACE
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INCLUDE_LCCL_OSS_JSON_H_

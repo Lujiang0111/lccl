@@ -13,8 +13,8 @@
 #include "socket/v4_addr.h"
 #include "socket/v6_addr.h"
 
-LCCL_BEGIN_NAMESPACE
-LCCL_SOCKET_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_SOCKET_NAMESPACE_BEGIN
 
 void InitEnv()
 {
@@ -413,5 +413,5 @@ bool SetKeepAlive(int fd, bool on, int idle, int interval, int count)
 #endif
 }
 
-LCCL_SOCKET_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_SOCKET_NAMESPACE_END
+LCCL_NAMESPACE_END

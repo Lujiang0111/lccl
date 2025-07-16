@@ -5,11 +5,11 @@
 #include "lccl.h"
 #include "lccl/oss/fmt.h"
 
-#define LCCL_LOG_BEGIN_NAMESPACE namespace log {
-#define LCCL_LOG_END_NAMESPACE }
+#define LCCL_LOG_NAMESPACE_BEGIN namespace log {
+#define LCCL_LOG_NAMESPACE_END }
 
-LCCL_BEGIN_NAMESPACE
-LCCL_LOG_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_LOG_NAMESPACE_BEGIN
 
 enum class Levels
 {
@@ -53,8 +53,8 @@ LCCL_API void SetLcclLogCallback(
     void (*cb)(void *opaque, Levels level, const char *file_name, int file_line, const char *content, size_t len),
     void *opaque);
 
-LCCL_LOG_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_LOG_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 #define LCCL_DEFAULT_LOG_SYNC(level, fmt, ...) \
     lccl::log::DefaultLogger()->LogFmt(level, true, true, __FILE__, __LINE__, fmt, ##__VA_ARGS__);

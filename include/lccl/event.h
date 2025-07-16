@@ -4,11 +4,11 @@
 #include <functional>
 #include "lccl.h"
 
-#define LCCL_EVENT_BEGIN_NAMESPACE namespace evt {
-#define LCCL_EVENT_END_NAMESPACE }
+#define LCCL_EVENT_NAMESPACE_BEGIN namespace evt {
+#define LCCL_EVENT_NAMESPACE_END }
 
-LCCL_BEGIN_NAMESPACE
-LCCL_EVENT_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
+LCCL_EVENT_NAMESPACE_BEGIN
 
 enum class MultiplexTypes
 {
@@ -43,7 +43,7 @@ public:
 LCCL_API std::shared_ptr<IMultiplex> CreateMultiplex(MultiplexTypes type, int timeout_ms);
 
 
-LCCL_EVENT_END_NAMESPACE
-LCCL_END_NAMESPACE
+LCCL_EVENT_NAMESPACE_END
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INCLUDE_LCCL_EVENT_H_

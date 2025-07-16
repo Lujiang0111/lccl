@@ -7,7 +7,7 @@
 #include <vector>
 #include "lccl.h"
 
-LCCL_BEGIN_NAMESPACE
+LCCL_NAMESPACE_BEGIN
 
 /**
 * 环形缓冲区：两种版本
@@ -252,6 +252,6 @@ private:
     std::atomic<size_t> read_index_;
 };
 
-LCCL_END_NAMESPACE
+LCCL_NAMESPACE_END
 
 #endif // !LCCL_INCLUDE_LCCL_UTILS_RING_BUFFER_H_
