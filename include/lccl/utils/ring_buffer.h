@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cstddef>
+#include <functional>
 #include <vector>
 #include "lccl.h"
 
@@ -73,7 +74,7 @@ public:
         return true;
     }
 
-    bool PopAndSet(T &pop_item, const T &set_item)
+    bool PopAndSetNull(T &pop_item)
     {
         // 判断缓冲区是否是空的
         if (read_index_ == write_index_)
@@ -82,28 +83,26 @@ public:
         }
 
         pop_item = buffer_[read_index_];
-        buffer_[read_index_] = set_item;
+        buffer_[read_index_] = nullptr;
         read_index_ = (read_index_ + 1) & size_mask_;
         return true;
     }
 
-    template<typename BackInsertIt>
-    void PopBulk(BackInsertIt inserter)
+    void PopBulk(const std::function<void(T &pop_item)> &callback)
     {
         while (read_index_ != write_index_)
         {
-            *inserter = buffer_[read_index_];
+            callback(buffer_[read_index_]);
             read_index_ = (read_index_ + 1) & size_mask_;
         }
     }
 
-    template<typename BackInsertIt>
-    void PopBulkAndSet(BackInsertIt inserter, const T &set_item)
+    void PopBulkAndSetNull(const std::function<void(T &pop_item)> &callback)
     {
         while (read_index_ != write_index_)
         {
-            *inserter = buffer_[read_index_];
-            buffer_[read_index_] = set_item;
+            callback(buffer_[read_index_]);
+            buffer_[read_index_] = nullptr;
             read_index_ = (read_index_ + 1) & size_mask_;
         }
     }
@@ -188,7 +187,7 @@ public:
         return true;
     }
 
-    bool PopAndSet(T &pop_item, const T &set_item)
+    bool PopAndSetNull(T &pop_item)
     {
         size_t read_index = read_index_.load(std::memory_order_relaxed);
 
@@ -199,33 +198,31 @@ public:
         }
 
         pop_item = buffer_[read_index];
-        buffer_[read_index] = set_item;
+        buffer_[read_index] = nullptr;
         read_index_.store((read_index + 1) & size_mask_, std::memory_order_release);
         return true;
     }
 
-    template<typename BackInsertIt>
-    void PopBulk(BackInsertIt inserter)
+    void PopBulk(const std::function<void(T &pop_item)> &callback)
     {
         size_t read_index = read_index_.load(std::memory_order_relaxed);
         size_t write_index = write_index_.load(std::memory_order_relaxed);
         while (read_index != write_index)
         {
-            *inserter = buffer_[read_index];
+            callback(buffer_[read_index]);
             read_index = (read_index + 1) & size_mask_;
         }
         read_index_.store(read_index, std::memory_order_release);
     }
 
-    template<typename BackInsertIt>
-    void PopBulkAndSet(BackInsertIt inserter, const T &set_item)
+    void PopBulkAndSetNull(const std::function<void(T &pop_item)> &callback)
     {
         size_t read_index = read_index_.load(std::memory_order_relaxed);
         size_t write_index = write_index_.load(std::memory_order_relaxed);
         while (read_index != write_index)
         {
-            *inserter = buffer_[read_index];
-            buffer_[read_index] = set_item;
+            callback(buffer_[read_index]);
+            buffer_[read_index] = nullptr;
             read_index = (read_index + 1) & size_mask_;
         }
         read_index_.store(read_index, std::memory_order_release);

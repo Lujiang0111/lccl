@@ -4,13 +4,15 @@
 #include "test_fmt.h"
 #include "test_file.h"
 #include "test_log.h"
+#include "test_ring_buffer.h"
 
 enum class TestTypes
 {
     kTestVersion = 0,
     kTestFmt,
     kTestFile,
-    kTestLog
+    kTestLog,
+    kTestRingBuffer,
 };
 
 bool app_running = true;
@@ -45,6 +47,9 @@ int main(int argc, char **argv)
         break;
     case TestTypes::kTestLog:
         TestLog(argc, argv);
+        break;
+    case TestTypes::kTestRingBuffer:
+        TestRingBuffer(argc, argv);
         break;
     default:
         return -1;
