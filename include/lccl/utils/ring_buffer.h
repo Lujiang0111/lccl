@@ -88,23 +88,35 @@ public:
         return true;
     }
 
-    void PopBulk(const std::function<void(T &pop_item)> &callback)
+    bool PopBulk(const std::function<void(T &pop_item)> &callback)
     {
+        if (read_index_ == write_index_)
+        {
+            return false;
+        }
+
         while (read_index_ != write_index_)
         {
             callback(buffer_[read_index_]);
             read_index_ = (read_index_ + 1) & size_mask_;
         }
+        return true;
     }
 
-    void PopBulkAndSetNull(const std::function<void(T &pop_item)> &callback)
+    bool PopBulkAndSetNull(const std::function<void(T &pop_item)> &callback)
     {
+        if (read_index_ == write_index_)
+        {
+            return false;
+        }
+
         while (read_index_ != write_index_)
         {
             callback(buffer_[read_index_]);
             buffer_[read_index_] = nullptr;
             read_index_ = (read_index_ + 1) & size_mask_;
         }
+        return true;
     }
 
     bool Empty() const
@@ -203,22 +215,33 @@ public:
         return true;
     }
 
-    void PopBulk(const std::function<void(T &pop_item)> &callback)
+    bool PopBulk(const std::function<void(T &pop_item)> &callback)
     {
         size_t read_index = read_index_.load(std::memory_order_relaxed);
         size_t write_index = write_index_.load(std::memory_order_relaxed);
+        if (read_index == write_index)
+        {
+            return false;
+        }
+
         while (read_index != write_index)
         {
             callback(buffer_[read_index]);
             read_index = (read_index + 1) & size_mask_;
         }
         read_index_.store(read_index, std::memory_order_release);
+        return true;
     }
 
-    void PopBulkAndSetNull(const std::function<void(T &pop_item)> &callback)
+    bool PopBulkAndSetNull(const std::function<void(T &pop_item)> &callback)
     {
         size_t read_index = read_index_.load(std::memory_order_relaxed);
         size_t write_index = write_index_.load(std::memory_order_relaxed);
+        if (read_index == write_index)
+        {
+            return false;
+        }
+
         while (read_index != write_index)
         {
             callback(buffer_[read_index]);
@@ -226,6 +249,7 @@ public:
             read_index = (read_index + 1) & size_mask_;
         }
         read_index_.store(read_index, std::memory_order_release);
+        return true;
     }
 
     bool Empty() const
