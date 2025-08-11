@@ -17,9 +17,9 @@ public:
         map_.emplace(src_val, dst_val);
     }
 
-    void RegisterMap(const std::unordered_map<SrcType, DstType> &map)
+    void SetDefault(const DstType &dst_val)
     {
-        map_.insert(map.begin(), map.end());
+        default_ = dst_val;
     }
 
     const DstType &To(const SrcType &src_val)
@@ -27,13 +27,14 @@ public:
         auto &&it = map_.find(src_val);
         if (map_.end() == it)
         {
-            throw std::out_of_range("Mapping not found.");
+            return default_;
         }
         return it->second;
     }
 
 private:
     std::unordered_map<SrcType, DstType> map_;
+    DstType default_;
 };
 
 // 单向使用
@@ -44,6 +45,11 @@ public:
     void RegisterItem(const EnumType &enum_val, const ToType &to_val)
     {
         map_.RegisterItem(static_cast<typename std::underlying_type<EnumType>::type>(enum_val), to_val);
+    }
+
+    void SetDefault(const ToType &to_val)
+    {
+        map_.SetDefault(to_val);
     }
 
     const ToType &To(const EnumType &enum_val)
