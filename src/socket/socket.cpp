@@ -150,6 +150,47 @@ std::shared_ptr<IAddr> CreateAddr(const sockaddr *sa, bool local)
     return addr;
 }
 
+std::shared_ptr<IAddr> CreateLocalAddr(const char *dev, AddrTypes addr_type)
+{
+    if (!dev)
+    {
+        return nullptr;
+    }
+
+    std::shared_ptr<IAddr> addr = nullptr;
+    switch (addr_type)
+    {
+    case AddrTypes::kIpv4:
+    {
+        std::shared_ptr<V4Addr> v4_addr = std::make_shared<V4Addr>();
+        if (!v4_addr->Init(dev))
+        {
+            break;
+        }
+
+        addr = v4_addr;
+        break;
+    }
+
+    case AddrTypes::kIpv6:
+    {
+        std::shared_ptr<V6Addr> v6_addr = std::make_shared<V6Addr>();
+        if (!v6_addr->Init(dev))
+        {
+            break;
+        }
+
+        addr = v6_addr;
+        break;
+    }
+
+    default:
+        break;
+    }
+
+    return addr;
+}
+
 std::shared_ptr<IAddr> Accept(int fd, int &remote_fd)
 {
     sockaddr_storage remote_sa = { 0 };

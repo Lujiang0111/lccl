@@ -21,6 +21,7 @@ public:
 
     bool Init(const char *ip, uint16_t port, bool local);
     bool Init(const sockaddr *sa, bool local);
+    bool Init(const char *dev);
 
     virtual sockaddr *GetNative();
     virtual AddrTypes GetType() const;

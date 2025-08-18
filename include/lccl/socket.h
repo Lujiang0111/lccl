@@ -59,6 +59,7 @@ LCCL_API int GetLastErrorCode();
 
 LCCL_API std::shared_ptr<IAddr> CreateAddr(const char *host, uint16_t port, bool local);
 LCCL_API std::shared_ptr<IAddr> CreateAddr(const sockaddr *sa, bool local);
+LCCL_API std::shared_ptr<IAddr> CreateLocalAddr(const char *dev, AddrTypes addr_type);
 
 LCCL_API std::shared_ptr<IAddr> Accept(int fd, int &remote_fd);
 LCCL_API std::shared_ptr<IAddr> RecvFrom(int fd, void *buf, int &len);

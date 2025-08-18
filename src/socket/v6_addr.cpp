@@ -44,6 +44,80 @@ bool V6Addr::Init(const sockaddr *sa, bool local)
     return ParseSa(local);
 }
 
+bool V6Addr::Init(const char *dev)
+{
+    port_ = 0;
+    dev_ = dev;
+
+    bool found = false;
+#if defined(_MSC_VER)
+    std::vector<uint8_t> pip_adapter_addresses;
+
+    // 获取网络适配器信息
+    ULONG buf_size = 0;
+    if (ERROR_BUFFER_OVERFLOW == GetAdaptersAddresses(AF_UNSPEC, GAA_FLAG_INCLUDE_PREFIX, nullptr, nullptr, &buf_size))
+    {
+        pip_adapter_addresses.resize(buf_size);
+    }
+
+    if (NO_ERROR != GetAdaptersAddresses(AF_UNSPEC, GAA_FLAG_INCLUDE_PREFIX, nullptr,
+        reinterpret_cast<PIP_ADAPTER_ADDRESSES>(&pip_adapter_addresses[0]), &buf_size))
+    {
+        LIB_LOG(lccl::log::Levels::kError, "GetAdaptersAddresses failed");
+        return false;
+    }
+
+    // 遍历适配器信息
+    PIP_ADAPTER_ADDRESSES curr_addr = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(&pip_adapter_addresses[0]);
+    while ((!found) && (curr_addr))
+    {
+        if ((curr_addr->AdapterName) && (dev_ == curr_addr->AdapterName))
+        {
+            for (PIP_ADAPTER_UNICAST_ADDRESS uni_addr = curr_addr->FirstUnicastAddress; uni_addr; uni_addr = uni_addr->Next)
+            {
+                sockaddr *sa = reinterpret_cast<sockaddr *>(uni_addr->Address.lpSockaddr);
+                if ((sa) && (AF_INET6 == sa->sa_family))
+                {
+                    memcpy(&sa6_, sa, sizeof(sa6_));
+                    dev_num_ = 0;
+                    scope_id_ = reinterpret_cast<sockaddr_in6 *>(sa)->sin6_scope_id;
+                    found = true;
+                    break;
+                }
+            }
+        }
+        curr_addr = curr_addr->Next;
+    }
+#else
+    struct ifaddrs *ifa = nullptr;
+    getifaddrs(&ifa);
+    for (struct ifaddrs *node = ifa; node; node = node->ifa_next)
+    {
+        sockaddr *sa = reinterpret_cast<sockaddr *>(node->ifa_addr);
+        if ((node->ifa_name) && (dev_ == node->ifa_name) &&
+            (sa) && (AF_INET6 == sa->sa_family))
+        {
+            memcpy(&sa6_, sa, sizeof(sa6_));
+            dev_num_ = if_nametoindex(node->ifa_name);
+            scope_id_ = reinterpret_cast<sockaddr_in6 *>(sa)->sin6_scope_id;
+            found = true;
+            break;
+        }
+    }
+    freeifaddrs(ifa);
+#endif
+
+    if (!found)
+    {
+        return false;
+    }
+
+    char ip_buf[INET6_ADDRSTRLEN] = { 0 };
+    inet_ntop(AF_INET6, &sa6_.sin6_addr, ip_buf, INET6_ADDRSTRLEN);
+    ip_ = ip_buf;
+    return true;
+}
+
 sockaddr *V6Addr::GetNative()
 {
     return reinterpret_cast<sockaddr *>(&sa6_);
@@ -197,6 +271,7 @@ bool V6Addr::ParseSa(bool local)
                         reinterpret_cast<sockaddr *>(&sa6_)))
                     {
                         dev_ = curr_addr->AdapterName;
+                        dev_num_ = 0;
                         sockaddr_in6 *sa6 = reinterpret_cast<sockaddr_in6 *>(uni_addr->Address.lpSockaddr);
                         scope_id_ = sa6->sin6_scope_id;
                         sa6_.sin6_scope_id = scope_id_;
