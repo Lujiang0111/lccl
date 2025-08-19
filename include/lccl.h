@@ -1,6 +1,7 @@
 ﻿#ifndef LCCL_INCLUDE_LCCL_H_
 #define LCCL_INCLUDE_LCCL_H_
 
+#include <cerrno>
 #include <cstdint>
 #include <cstddef>
 #include <cstring>
