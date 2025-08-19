@@ -8,7 +8,8 @@ LCCL_NAMESPACE_BEGIN
 LCCL_EVENT_NAMESPACE_BEGIN
 
 EpollMultiplex::EpollMultiplex(int timeout_ms) :
-    timeout_ms_(timeout_ms)
+    timeout_ms_(timeout_ms),
+    epoll_events_(1024, 0)
 {
     epoll_fd_ = epoll_create1(0);
 }
