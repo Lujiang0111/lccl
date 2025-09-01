@@ -16,37 +16,6 @@
 LCCL_NAMESPACE_BEGIN
 LCCL_SOCKET_NAMESPACE_BEGIN
 
-void InitEnv()
-{
-#if defined(_MSC_VER)
-    WORD wVersionRequested = MAKEWORD(2, 2);
-
-    WSADATA wsaData;
-    int ret_val = WSAStartup(wVersionRequested, &wsaData);
-    if (ret_val != 0)
-    {
-        LIB_LOG(lccl::log::Levels::kError, "WSAStartup failed with error: {}", ret_val);
-        return;
-    }
-
-    if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
-    {
-        LIB_LOG(lccl::log::Levels::kError, "Could not find a usable version of Winsock.dll");
-        WSACleanup();
-        return;
-    }
-#else
-#endif
-}
-
-void DeinitEnv()
-{
-#if defined(_MSC_VER)
-    WSACleanup();
-#else
-#endif
-}
-
 int GetLastErrorCode()
 {
 #if defined(_MSC_VER)

@@ -24,6 +24,9 @@ LCCL_NAMESPACE_BEGIN
 
 LCCL_API const char *GetVersion();
 
+LCCL_API bool InitEnv();
+LCCL_API void DeinitEnv();
+
 LCCL_NAMESPACE_END
 
 #endif // !LCCL_INCLUDE_LCCL_H_

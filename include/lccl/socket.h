@@ -53,8 +53,6 @@ public:
     virtual bool UnblockMulticastSource(int fd, IAddr *group_addr, IAddr *source_addr) = 0;
 };
 
-LCCL_API void InitEnv();
-LCCL_API void DeinitEnv();
 LCCL_API int GetLastErrorCode();
 
 LCCL_API std::shared_ptr<IAddr> CreateAddr(const char *host, uint16_t port, bool local);
