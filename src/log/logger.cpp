@@ -86,7 +86,7 @@ void Logger::SetMaxLevel(Levels max_level)
 
 void Logger::LogContent(Levels level, bool on_screen, bool sync, const char *file_name, int file_line, const char *content)
 {
-    std::shared_ptr<LogMsg> log_msg = std::make_shared<LogMsg>();
+    std::shared_ptr<PrintLogMsg> log_msg = std::make_shared<PrintLogMsg>();
     log_msg->time_point = std::chrono::system_clock::now();
     log_msg->thread_id = GetThreadId();
     log_msg->level = level;
@@ -95,11 +95,22 @@ void Logger::LogContent(Levels level, bool on_screen, bool sync, const char *fil
     log_msg->file_line = file_line;
     log_msg->content = (content) ? content : "";
 
+    EnqueueLogMsg(log_msg, sync);
+}
+
+void Logger::Flush()
+{
+    std::shared_ptr<FlushLogMsg> log_msg = std::make_shared<FlushLogMsg>();
+    EnqueueLogMsg(log_msg, false);
+}
+
+void Logger::EnqueueLogMsg(std::shared_ptr<LogMsg> log_msg, bool sync)
+{
     if (sync)
     {
         log_msg->sync_promise = std::make_shared<std::promise<bool>>();
         std::future<bool> future = log_msg->sync_promise->get_future();
-        if (EnqueueLogMsg(log_msg))
+        if (log_msgs_.try_enqueue(log_msg))
         {
             while (log_thread_running_)
             {
@@ -112,18 +123,8 @@ void Logger::LogContent(Levels level, bool on_screen, bool sync, const char *fil
     }
     else
     {
-        EnqueueLogMsg(log_msg);
+        log_msgs_.try_enqueue(log_msg);
     }
-}
-
-bool Logger::EnqueueLogMsg(std::shared_ptr<LogMsg> log_msg)
-{
-    if (!log_msgs_.try_enqueue(log_msg))
-    {
-        return false;
-    }
-    
-    return true;
 }
 
 void Logger::LogThread()
@@ -142,7 +143,23 @@ void Logger::LogThread()
 
         for (auto &&log_msg : log_msgs)
         {
-            PrintLog(*log_msg, utils_->NextId());
+            switch (log_msg->type)
+            {
+            case LogMsg::Types::kPrint:
+            {
+                PrintLog(*dynamic_cast<PrintLogMsg *>(log_msg.get()), utils_->NextId());
+                break;
+            }
+
+            case LogMsg::Types::kFlush:
+            {
+                FlushLog(false);
+                break;
+            }
+               
+            default:
+                break;
+            }
 
             if (log_msg->sync_promise)
             {
@@ -155,7 +172,7 @@ void Logger::LogThread()
     CloseLog();
 }
 
-void Logger::PrintLog(LogMsg &log_msg, size_t id)
+void Logger::PrintLog(PrintLogMsg &log_msg, size_t id)
 {
     UpdateLogFile(log_msg.time_point);
 
@@ -208,8 +225,9 @@ void Logger::PrintLog(LogMsg &log_msg, size_t id)
     case CompressTypes::kNone:
     {
         fout_ << content;
-        fout_.flush();
         file_write_size_ += content.length();
+
+        FlushLog(false);
         break;
     }
 
@@ -224,26 +242,7 @@ void Logger::PrintLog(LogMsg &log_msg, size_t id)
 
         if (z_inbuf_size_ >= kZlibChunkSize)
         {
-            z_stream_.avail_in = static_cast<uInt>(z_inbuf_size_);
-            z_stream_.next_in = &z_inbuf_[0];
-
-            do
-            {
-                z_stream_.avail_out = kZlibChunkSize;
-                z_stream_.next_out = &z_outbuf_[0];
-
-                if (Z_STREAM_ERROR == deflate(&z_stream_, Z_PARTIAL_FLUSH))
-                {
-                    fout_.close();
-                    return;
-                }
-
-                fout_.write(reinterpret_cast<const char *>(&z_outbuf_[0]), kZlibChunkSize - z_stream_.avail_out);
-                fout_.flush();
-                file_write_size_ += (kZlibChunkSize - z_stream_.avail_out);
-            } while (0 == z_stream_.avail_out);
-
-            z_inbuf_size_ = 0;
+            FlushLog(false);
         }
         break;
     }
@@ -253,36 +252,70 @@ void Logger::PrintLog(LogMsg &log_msg, size_t id)
     }
 }
 
+void Logger::FlushLog(bool close_log_file)
+{
+    if (!fout_.is_open())
+    {
+        return;
+    }
+
+    switch (compress_type_)
+    {
+    case CompressTypes::kNone:
+    {
+        fout_.flush();
+        break;
+    }
+
+    case CompressTypes::kGzip:
+    {
+        z_stream_.avail_in = static_cast<uInt>(z_inbuf_size_);
+        z_stream_.next_in = &z_inbuf_[0];
+
+        do
+        {
+            z_stream_.avail_out = kZlibChunkSize;
+            z_stream_.next_out = &z_outbuf_[0];
+
+            if (Z_STREAM_ERROR == deflate(&z_stream_, (close_log_file) ? Z_FINISH : Z_PARTIAL_FLUSH))
+            {
+                fout_.close();
+                return;
+            }
+
+            fout_.write(reinterpret_cast<const char *>(&z_outbuf_[0]), kZlibChunkSize - z_stream_.avail_out);
+            fout_.flush();
+            file_write_size_ += (kZlibChunkSize - z_stream_.avail_out);
+        } while (0 == z_stream_.avail_out);
+
+        z_inbuf_size_ = 0;
+        break;
+    }
+
+    default:
+        break;
+    }
+
+    if (close_log_file)
+    {
+        fout_.close();
+    }
+}
+
 void Logger::CloseLog()
 {
-    if (fout_.is_open())
+    FlushLog(true);
+
+    switch (compress_type_)
     {
-        switch (compress_type_)
-        {
-        case CompressTypes::kGzip:
-        {
-            z_stream_.avail_in = static_cast<uInt>(z_inbuf_size_);
-            z_stream_.next_in = &z_inbuf_[0];
+    case CompressTypes::kGzip:
+    {
+        deflateEnd(&z_stream_);
+        break;
+    }
 
-            do
-            {
-                z_stream_.avail_out = kZlibChunkSize;
-                z_stream_.next_out = &z_outbuf_[0];
-
-                if (Z_STREAM_ERROR == deflate(&z_stream_, Z_FINISH))
-                {
-                    break;
-                }
-                fout_.write(reinterpret_cast<const char *>(&z_outbuf_[0]), kZlibChunkSize - z_stream_.avail_out);
-            } while (0 == z_stream_.avail_out);
-            deflateEnd(&z_stream_);
-        }
-
-        default:
-            break;
-        }
-
-        fout_.close();
+    default:
+        break;
     }
 }
 

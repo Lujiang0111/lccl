@@ -35,7 +35,11 @@ public:
     virtual ~ILogger() = default;
 
     virtual void SetMaxLevel(Levels max_level) = 0;
+
     virtual void LogContent(Levels level, bool on_screen, bool sync, const char *file_name, int file_line, const char *content) = 0;
+
+    // 强制将日志文件fflush
+    virtual void Flush() = 0;
 
     template<typename... Args>
     inline void LogFmt(Levels level, bool on_screen, bool sync, const char *file_name, int file_line, fmt::format_string<Args...> fmt, Args &&... args)

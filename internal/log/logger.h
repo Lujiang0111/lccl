@@ -10,21 +10,46 @@
 #include "lccl/file.h"
 #include "lccl/log.h"
 #include "lccl/oss/concurrentqueue/concurrentqueue.h"
+#include "lccl/utils/class_utils.h"
 #include "log/utils.h"
 
 LCCL_NAMESPACE_BEGIN
 LCCL_LOG_NAMESPACE_BEGIN
 
-struct LogMsg
+struct LogMsg : public ICopyable
 {
-    std::chrono::system_clock::time_point time_point;
-    size_t thread_id;
-    Levels level;
-    bool on_screen;
-    std::string file_name;
-    int file_line;
-    std::string content;
+    enum class Types
+    {
+        kPrint = 0,
+        kFlush,
+    };
+
+    Types type = Types::kPrint;
     std::shared_ptr<std::promise<bool>> sync_promise;
+};
+
+struct PrintLogMsg : public LogMsg
+{
+    PrintLogMsg()
+    {
+        type = Types::kPrint;
+    }
+
+    std::chrono::system_clock::time_point time_point;
+    size_t thread_id = 0;
+    Levels level = Levels::kDebug;
+    bool on_screen = false;
+    std::string file_name;
+    int file_line = 0;
+    std::string content;
+};
+
+struct FlushLogMsg : public LogMsg
+{
+    FlushLogMsg()
+    {
+        type = Types::kFlush;
+    }
 };
 
 class Logger : public ILogger
@@ -38,13 +63,16 @@ public:
     virtual ~Logger();
 
     virtual void SetMaxLevel(Levels max_level);
+
     virtual void LogContent(Levels level, bool on_screen, bool sync, const char *file_name, int file_line, const char *content);
+    virtual void Flush();
 
 private:
-    bool EnqueueLogMsg(std::shared_ptr<LogMsg> log_msg);
+    void EnqueueLogMsg(std::shared_ptr<LogMsg> log_msg, bool sync);
 
     void LogThread();
-    void PrintLog(LogMsg &log_msg, size_t id);
+    void PrintLog(PrintLogMsg &log_msg, size_t id);
+    void FlushLog(bool close_log_file);
     void CloseLog();
 
     void UpdateFileInfo();

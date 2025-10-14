@@ -6,6 +6,24 @@
 
 LCCL_NAMESPACE_BEGIN
 
+class ICopyable
+{
+public:
+    ICopyable() = default;
+    ICopyable(const ICopyable &) = default;
+    ICopyable &operator=(const ICopyable &) = default;
+    virtual ~ICopyable() = default;
+};
+
+class INonCopyable
+{
+public:
+    INonCopyable() = default;
+    INonCopyable(const INonCopyable &) = delete;
+    INonCopyable &operator=(const INonCopyable &) = delete;
+    virtual ~INonCopyable() = default;
+};
+
 template <typename T, typename... Args>
 std::shared_ptr<T> MakeSharedProtected(Args &&...args)
 {
