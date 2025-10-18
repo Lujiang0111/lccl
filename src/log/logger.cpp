@@ -5,12 +5,14 @@
 #endif
 
 #include "lccl/utils/path_utils.h"
+#include "file/file_info.h"
 #include "log/lib_log.h"
 #include "log/logger.h"
 
 LCCL_NAMESPACE_BEGIN
 LCCL_LOG_NAMESPACE_BEGIN
 
+constexpr size_t kDefaultFileMaxSize = 100ULL << 20;
 constexpr size_t kLogMsgsMaxSize = 1000;
 constexpr size_t kZlibChunkSize = 16 * 1024;
 
@@ -46,9 +48,10 @@ static inline size_t GetThreadId()
     return tid;
 }
 
-Logger::Logger(const std::string &path, size_t max_size, CompressTypes compress_type) :
+Logger::Logger(const std::string &path, size_t total_max_size, size_t file_max_size, CompressTypes compress_type) :
     path_(path),
-    max_size_(max_size),
+    total_max_size_(total_max_size),
+    file_max_size_(file_max_size),
     compress_type_(compress_type),
     max_level_(Levels::kNb),
     log_thread_running_(false),
@@ -325,21 +328,57 @@ void Logger::UpdateFileInfo()
     file_info_ = file::CreateFileInfo(path_.c_str(), file::SortTypes::kByModifyTime);
 }
 
+static size_t GetNextFileIndex(file::IFileInfo *i_file_info, const std::string &dir_name, const std::string &prefix)
+{
+    size_t next_file_index = 0;
+    file::FileInfo *file_info = dynamic_cast<file::FileInfo *>(i_file_info);
+    auto &&dir_childs = file_info->GetChilds();
+    for (auto &&dir_child : dir_childs)
+    {
+        if ((file::FileModes::kDirectory == dir_child->GetFileMode()) &&
+            (0 == strcmp(dir_child->GetName(), dir_name.c_str())))
+        {
+            auto &&file_childs = dir_child->GetChilds();
+            for (auto &&file_child : file_childs)
+            {
+                if (0 == strncmp(file_child->GetName(), prefix.c_str(), prefix.length()))
+                {
+                    const char *ptr = file_child->GetName() + prefix.length();
+                    size_t file_index = 0;
+                    while ((*ptr >= '0') && (*ptr <= '9'))
+                    {
+                        file_index = file_index * 10 + static_cast<size_t>(*ptr - '0');
+                        ++ptr;
+                    }
+                    if (file_index >= next_file_index)
+                    {
+                        next_file_index = file_index + 1;
+                    }
+                }
+            }
+            break;
+        }
+    }
+
+    return next_file_index;
+}
+
 void Logger::UpdateLogFile(std::chrono::system_clock::time_point time_point)
 {
     int64_t hour_count = std::chrono::duration_cast<std::chrono::hours>(time_point.time_since_epoch()).count();
     if ((!fout_.is_open()) ||
         (hour_count != file_hour_count_) ||
-        ((max_size_ > 0) && (file_info_) && (file_info_->GetTotalSize() + file_write_size_ > max_size_)))
+        ((file_max_size_ > 0) && (file_write_size_ > file_max_size_)) ||
+        ((total_max_size_ > 0) && (file_info_) && (file_info_->GetTotalSize() + file_write_size_ > total_max_size_)))
     {
         // close exist log
         CloseLog();
 
         // do cleaning
         UpdateFileInfo();
-        if ((max_size_ > 0) && (file_info_) && (file_info_->GetTotalSize() > max_size_))
+        if ((total_max_size_ > 0) && (file_info_) && (file_info_->GetTotalSize() > total_max_size_))
         {
-            size_t clear_size = file_info_->GetTotalSize() - max_size_ / 10 * 8;
+            size_t clear_size = file_info_->GetTotalSize() - total_max_size_ / 10 * 8;
             DeleteLogFile(file_info_.get(), clear_size);
             UpdateFileInfo();
         }
@@ -354,16 +393,17 @@ void Logger::UpdateLogFile(std::chrono::system_clock::time_point time_point)
 #endif
 
         // create new file
-        std::string file_name;
         switch (compress_type_)
         {
         case CompressTypes::kNone:
         {
-            file_name = fmt::format("{}{}{:04d}-{:02d}-{:02d}{}{:04d}-{:02d}-{:02d}-{:02d}.log",
-                path_, kDirSep,
-                time_tm.tm_year + 1900, time_tm.tm_mon + 1, time_tm.tm_mday, kDirSep,
+            std::string dir_name = fmt::format("{:04d}-{:02d}-{:02d}",
+                time_tm.tm_year + 1900, time_tm.tm_mon + 1, time_tm.tm_mday);
+            std::string prefix = fmt::format("{:04d}-{:02d}-{:02d}-{:02d}.",
                 time_tm.tm_year + 1900, time_tm.tm_mon + 1, time_tm.tm_mday, time_tm.tm_hour);
+            size_t next_file_index = GetNextFileIndex(file_info_.get(), dir_name, prefix);
 
+            std::string file_name = OsPathJoin(path_, dir_name, fmt::format("{}{}.log", prefix, next_file_index));
             file::CreateDir(file_name.c_str(), true);
             fout_.open(file_name.c_str(), std::ios::app);
             break;
@@ -379,20 +419,13 @@ void Logger::UpdateLogFile(std::chrono::system_clock::time_point time_point)
                 break;
             }
 
-            for (int file_no = 0; ; ++file_no)
-            {
-                file_name = fmt::format("{}{}{:04d}-{:02d}-{:02d}{}{:04d}-{:02d}-{:02d}-{:02d}{}.log.gz",
-                    path_, kDirSep,
-                    time_tm.tm_year + 1900, time_tm.tm_mon + 1, time_tm.tm_mday, kDirSep,
-                    time_tm.tm_year + 1900, time_tm.tm_mon + 1, time_tm.tm_mday, time_tm.tm_hour,
-                    (0 == file_no) ? "" : fmt::format("-{}", file_no));
-                auto file_info = file::CreateFileInfo(file_name.c_str(), file::SortTypes::kByModifyTime);
-                if (!file_info)
-                {
-                    break;
-                }
-            }
+            std::string dir_name = fmt::format("{:04d}-{:02d}-{:02d}",
+                time_tm.tm_year + 1900, time_tm.tm_mon + 1, time_tm.tm_mday);
+            std::string prefix = fmt::format("{:04d}-{:02d}-{:02d}-{:02d}.",
+                time_tm.tm_year + 1900, time_tm.tm_mon + 1, time_tm.tm_mday, time_tm.tm_hour);
+            size_t next_file_index = GetNextFileIndex(file_info_.get(), dir_name, prefix);
 
+            std::string file_name = OsPathJoin(path_, dir_name, fmt::format("{}{}.log.gz", prefix, next_file_index));
             file::CreateDir(file_name.c_str(), true);
             fout_.open(file_name.c_str(), std::ios::binary);
             break;
@@ -407,13 +440,14 @@ void Logger::UpdateLogFile(std::chrono::system_clock::time_point time_point)
     }
 }
 
-void Logger::DeleteLogFile(const file::IFileInfo *file_info, size_t &del_size)
+void Logger::DeleteLogFile(file::IFileInfo *i_file_info, size_t &del_size)
 {
     if (0 == del_size)
     {
         return;
     }
 
+    file::FileInfo *file_info = dynamic_cast<file::FileInfo *>(i_file_info);
     if ((file::FileModes::kRegularFile == file_info->GetFileMode()) ||
         (file_info->GetTotalSize() < del_size))
     {
@@ -422,22 +456,25 @@ void Logger::DeleteLogFile(const file::IFileInfo *file_info, size_t &del_size)
     }
     else if (file::FileModes::kDirectory == file_info->GetFileMode())
     {
-        for (size_t i = 0; i < file_info->GetChildCnt(); ++i)
+        auto &&childs = file_info->GetChilds();
+        for (auto &&child : childs)
         {
-            DeleteLogFile(file_info->GetChild(i), del_size);
+            DeleteLogFile(child.get(), del_size);
         }
     }
 }
 
-std::shared_ptr<ILogger> CreateLogger(const char *path, size_t max_size, CompressTypes compress_type)
+std::shared_ptr<ILogger> CreateLogger(const char *path,
+    size_t total_max_size, size_t file_max_size, CompressTypes compress_type)
 {
-    std::shared_ptr<Logger> logger = std::make_shared<Logger>((path) ? path : "", max_size, compress_type);
+    std::shared_ptr<Logger> logger = std::make_shared<Logger>((path) ? path : "",
+        total_max_size, file_max_size, compress_type);
     return logger;
 }
 
 ILogger *DefaultLogger()
 {
-    static std::shared_ptr<ILogger> default_logger = CreateLogger("Log", 0, CompressTypes::kNone);
+    static std::shared_ptr<ILogger> default_logger = CreateLogger("Log", 0, kDefaultFileMaxSize, CompressTypes::kNone);
     return default_logger.get();
 }
 

@@ -49,7 +49,8 @@ public:
     }
 };
 
-LCCL_API std::shared_ptr<ILogger> CreateLogger(const char *path, size_t max_size, CompressTypes compress_type);
+LCCL_API std::shared_ptr<ILogger> CreateLogger(const char *path,
+    size_t total_max_size, size_t file_max_size, CompressTypes compress_type);
 
 LCCL_API ILogger *DefaultLogger();
 

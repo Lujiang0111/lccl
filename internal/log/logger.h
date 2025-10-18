@@ -59,7 +59,7 @@ public:
     Logger(const Logger &) = delete;
     Logger &operator=(const Logger &) = delete;
 
-    Logger(const std::string &path, size_t max_size, CompressTypes compress_type);
+    Logger(const std::string &path, size_t total_max_size, size_t file_max_size, CompressTypes compress_type);
     virtual ~Logger();
 
     virtual void SetMaxLevel(Levels max_level);
@@ -77,11 +77,12 @@ private:
 
     void UpdateFileInfo();
     void UpdateLogFile(std::chrono::system_clock::time_point time_point);
-    void DeleteLogFile(const file::IFileInfo *file_info, size_t &del_size);
+    void DeleteLogFile(file::IFileInfo *file_info, size_t &del_size);
 
 private:
     std::string path_;
-    size_t max_size_;
+    size_t total_max_size_;
+    size_t file_max_size_;
     CompressTypes compress_type_;
     Levels max_level_;
     Utils *utils_;

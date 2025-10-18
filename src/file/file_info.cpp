@@ -58,6 +58,11 @@ const IFileInfo *FileInfo::GetChild(size_t idx) const
     return childs_[idx].get();
 }
 
+std::vector<std::shared_ptr<FileInfo>> &FileInfo::GetChilds()
+{
+    return childs_;
+}
+
 std::shared_ptr<FileInfo> FileInfo::CreateFileInfo(const std::string &file_name, SortTypes sort_type)
 {
     std::string os_file_name = OsPathJoin(file_name);

@@ -39,11 +39,11 @@ void TestLog(int argc, char **argv)
     }
 
     std::shared_ptr<lccl::log::ILogger> logger = lccl::log::CreateLogger("log",
-        static_cast<size_t>(100) << 20,
+        static_cast<size_t>(1000) << 10, static_cast<size_t>(100) << 10,
         lccl::log::CompressTypes::kNone);
 
     std::shared_ptr<lccl::log::ILogger> zlogger = lccl::log::CreateLogger("zlog",
-        static_cast<size_t>(100) << 20,
+        static_cast<size_t>(1000) << 10, static_cast<size_t>(100) << 10,
         lccl::log::CompressTypes::kGzip);
     
     TestLogTypes test_log_type = static_cast<TestLogTypes>(atoi(argv[2]));

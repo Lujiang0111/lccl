@@ -26,6 +26,8 @@ public:
     virtual size_t GetChildCnt() const;
     virtual const IFileInfo *GetChild(size_t idx) const;
 
+    std::vector<std::shared_ptr<FileInfo>> &GetChilds();
+
     static std::shared_ptr<FileInfo> CreateFileInfo(const std::string &file_name, SortTypes sort_type);
 
 private:
