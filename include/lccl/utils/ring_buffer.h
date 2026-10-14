@@ -136,7 +136,7 @@ public:
             return write_index_ - read_index_;
         }
 
-        return read_index_ + size_ - write_index_;
+        return write_index_ + size_ - read_index_;
     }
 
 private:
@@ -163,10 +163,7 @@ public:
         read_index_.store(0, std::memory_order_relaxed);
     }
 
-    virtual ~LockFreeRingBuffer()
-    {
-
-    }
+    ~LockFreeRingBuffer() = default;
 
     bool Push(const T &item)
     {
@@ -174,7 +171,7 @@ public:
         size_t next_write_index = (write_index + 1) & size_mask_;
 
         // 判断缓冲区是否已满
-        if (next_write_index == read_index_.load(std::memory_order_relaxed))
+        if (next_write_index == read_index_.load(std::memory_order_acquire))
         {
             return false;
         }
@@ -189,7 +186,7 @@ public:
         size_t read_index = read_index_.load(std::memory_order_relaxed);
 
         // 判断缓冲区是否是空的
-        if (read_index == write_index_.load(std::memory_order_relaxed))
+        if (read_index == write_index_.load(std::memory_order_acquire))
         {
             return false;
         }
@@ -204,13 +201,13 @@ public:
         size_t read_index = read_index_.load(std::memory_order_relaxed);
 
         // 判断缓冲区是否是空的
-        if (read_index == write_index_.load(std::memory_order_relaxed))
+        if (read_index == write_index_.load(std::memory_order_acquire))
         {
             return false;
         }
 
         pop_item = buffer_[read_index];
-        buffer_[read_index] = nullptr;
+        buffer_[read_index] = T{};
         read_index_.store((read_index + 1) & size_mask_, std::memory_order_release);
         return true;
     }
@@ -218,7 +215,7 @@ public:
     bool PopBulk(const std::function<void(T &pop_item)> &callback)
     {
         size_t read_index = read_index_.load(std::memory_order_relaxed);
-        size_t write_index = write_index_.load(std::memory_order_relaxed);
+        size_t write_index = write_index_.load(std::memory_order_acquire);
         if (read_index == write_index)
         {
             return false;
@@ -236,7 +233,7 @@ public:
     bool PopBulkAndSetNull(const std::function<void(T &pop_item)> &callback)
     {
         size_t read_index = read_index_.load(std::memory_order_relaxed);
-        size_t write_index = write_index_.load(std::memory_order_relaxed);
+        size_t write_index = write_index_.load(std::memory_order_acquire);
         if (read_index == write_index)
         {
             return false;
@@ -245,7 +242,7 @@ public:
         while (read_index != write_index)
         {
             callback(buffer_[read_index]);
-            buffer_[read_index] = nullptr;
+            buffer_[read_index] = T{};
             read_index = (read_index + 1) & size_mask_;
         }
         read_index_.store(read_index, std::memory_order_release);
@@ -255,13 +252,25 @@ public:
     bool Empty() const
     {
         return (read_index_.load(std::memory_order_relaxed) ==
-            write_index_.load(std::memory_order_relaxed));
+            write_index_.load(std::memory_order_acquire));
     }
 
     bool Full() const
     {
         return ((write_index_.load(std::memory_order_relaxed) + 1) & size_mask_) ==
-            read_index_.load(std::memory_order_relaxed);
+            read_index_.load(std::memory_order_acquire);
+    }
+
+    size_t Size() const
+    {
+        size_t read_index = read_index_.load(std::memory_order_acquire);
+        size_t write_index = write_index_.load(std::memory_order_acquire);
+
+        if (write_index >= read_index)
+        {
+            return write_index - read_index;
+        }
+        return write_index + size_ - read_index;
     }
 
 private:
