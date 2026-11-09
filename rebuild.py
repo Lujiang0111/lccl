@@ -1,61 +1,109 @@
+import argparse
 import os
 import shutil
 import subprocess
 import sys
-import pathlib
+import time
+from pathlib import Path
+
+
+def rm_path(file_name, retries=3) -> bool:
+    path = Path(file_name)
+    if path.is_symlink() or path.is_file():
+        path.unlink()
+        return True
+
+    if path.is_dir():
+        for i in range(retries):
+            try:
+                shutil.rmtree(file_name)
+                return True
+            except OSError:
+                if i == retries - 1:
+                    return False
+                time.sleep(1)
+        return False
+
+    return False
 
 
 class Rebuild:
-    __build_type = None
     __env_dir = None
+    __args = None
 
-    def main(self, args) -> None:
-        param_cnt = len(args) - 1
+    __type = None
+    __static_lib = None
 
-        if param_cnt > 0:
-            self.__build_type = args[1]
+    __top_dir = None
+
+    def main(self) -> None:
+        self.__env_dir = Path(__file__).resolve().parent
+        self.parse_args()
+
+        self.__top_dir = self.__env_dir.parent.parent.parent
+
+        self.build(self.__top_dir / "source" / "lib" / "lccl")
+
+    def parse_args(self) -> None:
+        parser = argparse.ArgumentParser(description="arg description")
+
+        parser.add_argument(
+            "-t",
+            "--type",
+            help="指定编译类型",
+            default="debug",
+            choices=["debug", "release"],
+        )
+
+        parser.add_argument("--static", help="是否编译静态库", action="store_true")
+
+        self.__args = parser.parse_args()
+
+        self.__type = self.__args.type
+
+        if self.__args.static:
+            self.__static_lib = "ON"
         else:
-            self.__build_type = "Debug"
+            self.__static_lib = "OFF"
+        print(f"tpye={self.__type}, static lib={self.__static_lib}")
 
-        if (self.__build_type != "Debug") and (self.__build_type != "Release"):
-            print(f"build type={self.__build_type} error, should be Debug or Release")
-            sys.exit(1)
-        print(f"build type={self.__build_type}")
+    def build(self, project_dir: Path) -> None:
+        print(f"\n\033[33mmake project {project_dir.name}...\033[0m")
 
-        self.__env_dir = pathlib.Path(__file__).resolve().parent.parent.parent.parent
+        os.chdir(project_dir)
 
-        self.build(os.path.join(self.__env_dir, "source", "lib", "lccl"))
+        build_dir = project_dir / "build"
+        rm_path(build_dir)
+        build_dir.mkdir(parents=True, exist_ok=True)
 
-    def build(self, path) -> None:
-        print(f"\n\033[33mmake project {os.path.basename(path)}...\033[0m")
-
-        os.chdir(path)
-
-        if os.path.exists("build"):
-            shutil.rmtree("build")
-
-        # 创建 build 目录
-        os.makedirs("build", exist_ok=True)
-
-        # 进入 build 目录
         os.chdir("build")
-
         if "win32" == sys.platform:
             cmake_generator = "Visual Studio 17 2022"
             cmake_arch = "x64"
             subprocess.run(
-                ["cmake", "..", f"-G{cmake_generator}", f"-A{cmake_arch}"],
+                [
+                    "cmake",
+                    "..",
+                    f"-G{cmake_generator}",
+                    f"-A{cmake_arch}",
+                    f"-DSTATIC_LIB={self.__static_lib}",
+                ],
                 check=True,
                 shell=False,
             )
             subprocess.run(
-                ["cmake", "--build", ".", "--config", self.__build_type],
+                ["cmake", "--build", ".", "--config", self.__type],
                 check=True,
                 shell=False,
             )
         else:
             subprocess.run(
-                ["cmake", "..", f"-DCMAKE_BUILD_TYPE={self.__build_type}"],
+                [
+                    "cmake",
+                    "..",
+                    f"-DCMAKE_BUILD_TYPE={self.__type}",
+                    f"-DSTATIC_LIB={self.__static_lib}",
+                ],
                 check=True,
                 shell=False,
             )
@@ -68,4 +116,4 @@ class Rebuild:
 
 if __name__ == "__main__":
     rebuild = Rebuild()
-    rebuild.main(sys.argv)
+    rebuild.main()

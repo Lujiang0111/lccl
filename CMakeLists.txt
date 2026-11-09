@@ -19,14 +19,22 @@ endif()
 # 源文件
 file(GLOB_RECURSE srcs "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
-# 创建动态库文件
-add_library(${PROJECT_NAME} SHARED ${srcs})
+option(STATIC_LIB "Build as static library" OFF)
+
+# 创建库文件
+if (STATIC_LIB)
+    add_library(${PROJECT_NAME} STATIC ${srcs})
+else()
+    add_library(${PROJECT_NAME} SHARED ${srcs})
+endif()
 
 # 设定库版本
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION 1.0 SOVERSION 1)
 
-# 设置输出目录
 set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/bin)
+set(dep_dir ${CMAKE_CURRENT_BINARY_DIR}/dep)
+
+# 设置输出目录
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${bin_dir})
 set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${bin_dir})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${bin_dir})
@@ -39,12 +47,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_RELEAS
 
 # 获取系统和架构类型
 set(os_name "debian")
-set(os_version "12")
 set(os_arch "${CMAKE_SYSTEM_PROCESSOR}")
 
 if(WIN32)
     set(os_name "windows")
-    set(os_version "msvc")
     set(os_arch "x86_64")
 else()
     if(EXISTS "/etc/os-release")
@@ -53,14 +59,12 @@ else()
         foreach(line IN LISTS os_release_lines)
             if(line MATCHES "^ID=\"?([^\"]+)\"?")
                 set(os_name "${CMAKE_MATCH_1}")
-            elseif(line MATCHES "^VERSION_ID=\"?([^\"]+)\"?")
-                set(os_version "${CMAKE_MATCH_1}")
             endif()
         endforeach()
     endif()
 endif()
 
-message(STATUS "os name=${os_name}, os version=${os_version}, os arch=${os_arch}, build type=${CMAKE_BUILD_TYPE}")
+message(STATUS "os name=${os_name}, os arch=${os_arch}, build type=${CMAKE_BUILD_TYPE}")
 
 # 指定目标的包含目录
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -69,7 +73,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 # 链接库目录
-target_link_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/dep/lib)
+target_link_directories(${PROJECT_NAME} PRIVATE ${dep_dir}/lib)
 
 # 链接库
 set(prebuild_lib_base_dir "${CMAKE_CURRENT_SOURCE_DIR}/../../../version/lib")
@@ -91,7 +95,7 @@ if(os_name MATCHES "windows")
 
     # 添加特定库
     target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_BINARY_DIR}/dep/include/zlib
+        ${dep_dir}/include/zlib
     )
 
     set(prebuild_libs
@@ -112,7 +116,7 @@ endif()
 # 编译前操作
 add_custom_target(
     ${PROJECT_NAME}_prebuild
-    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/prebuild.py ${os_name} ${os_version} ${os_arch} ${CMAKE_BUILD_TYPE} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${prebuild_lib_base_dir} ${prebuild_libs}
+    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/prebuild.py --os_name ${os_name} --os_arch ${os_arch} --dep_dir ${dep_dir} --lib_base_dir ${prebuild_lib_base_dir} --libs ${prebuild_libs}
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_prebuild)
@@ -120,5 +124,5 @@ add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_prebuild)
 # 编译后操作
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/postbuild.py ${os_name} ${os_version} ${os_arch} ${CMAKE_BUILD_TYPE} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${postbuild_lib_base_dir} ${PROJECT_NAME} ${PROJECT_VERSION}
+    COMMAND ${CMAKE_COMMAND} -E env python3 ${CMAKE_CURRENT_SOURCE_DIR}/postbuild.py --os_name ${os_name} --os_arch ${os_arch} --bin_dir ${bin_dir} --include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include --lib_base_dir ${postbuild_lib_base_dir} --project_name ${PROJECT_NAME} --project_version ${PROJECT_VERSION}
 )

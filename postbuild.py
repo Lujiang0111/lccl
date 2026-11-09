@@ -1,97 +1,97 @@
-import os
+import argparse
 import shutil
-import sys
+import time
+from pathlib import Path
 
 
-# 复制目录
-def copy_dir(src_dir, dst_dir) -> None:
-    if not os.path.isdir(src_dir):
-        return
+def rm_path(file_name, retries=3) -> bool:
+    path = Path(file_name)
+    if path.is_symlink() or path.is_file():
+        path.unlink()
+        return True
 
-    if not os.path.exists(dst_dir):
-        os.makedirs(dst_dir)
+    if path.is_dir():
+        for i in range(retries):
+            try:
+                shutil.rmtree(file_name)
+                return True
+            except OSError:
+                if i == retries - 1:
+                    return False
+                time.sleep(1)
+        return False
 
-    for item in os.listdir(src_dir):
-        src_item = os.path.join(src_dir, item)
-        dst_item = os.path.join(dst_dir, item)
-
-        if os.path.isdir(src_item):
-            copy_dir(src_item, dst_item)
-        else:
-            shutil.copy2(src_item, dst_item, follow_symlinks=False)
-
-
-# 删除目录
-def rm_dir(dir) -> None:
-    if not os.path.exists(dir):
-        return
-
-    if os.path.isdir(dir):
-        shutil.rmtree(dir)
-    else:
-        os.remove(dir)
+    return False
 
 
-# 删除软链接
-def remove_symlinks(dir) -> None:
-    for filename in os.listdir(dir):
-        filepath = os.path.join(dir, filename)
-        if os.path.islink(filepath):
-            os.remove(filepath)
+def copy_path(src_path, dst_path) -> bool:
+    src = Path(src_path)
+    dst = Path(dst_path)
+
+    if not src.exists():
+        return True
+
+    dst.parent.mkdir(parents=True, exist_ok=True)
+
+    if src.is_dir():
+        if dst.exists():
+            if dst.is_dir():
+                for p in src.iterdir():
+                    if not copy_path(p, dst / p.name):
+                        return False
+                return True
+            return False
+
+        shutil.copytree(src, dst)
+        return True
+
+    shutil.copy2(src, dst)
+    return True
 
 
-class Postbuild:
-    __os_name = None
-    __os_version = None
-    __os_arch = None
-    __build_type = "Debug"
+class PostbuildClass:
+    __args = None
+
     __include_dir = None
     __bin_dir = None
-    __dst_base_dir = None
-    __project_name = None
-    __project_version = None
+    __dst_dir = None
 
-    def main(self, args) -> None:
-        param_cnt = len(args) - 1
-        if param_cnt < 9:
-            raise SystemExit(f"param cnt={param_cnt} to less")
+    def main(self) -> None:
+        self.parse_args()
 
-        # 获取编译模式、依赖路径和目的路径
-        self.__os_name = args[1]
-        self.__os_version = args[2]
-        self.__os_arch = args[3]
-        self.__build_type = args[4]
-        self.__include_dir = os.path.join(args[5], "include")
-        self.__bin_dir = os.path.join(args[6], "bin")
-        self.__dst_base_dir = args[7]
-        self.__project_name = args[8]
-        self.__project_version = args[9]
+        # remove symlinks
+        for p in self.__bin_dir.iterdir():
+            if p.is_symlink():
+                rm_path(p)
 
-        dst_os_name_dir = os.path.join(
-            self.__dst_base_dir,
-            self.__project_name,
-            f"v{self.__project_version}",
-            self.__os_name,
+        rm_path(self.__dst_dir)
+        copy_path(self.__include_dir, self.__dst_dir / "include")
+        copy_path(self.__bin_dir, self.__dst_dir / "lib")
+
+    def parse_args(self) -> None:
+        parser = argparse.ArgumentParser(description="arg description")
+
+        parser.add_argument("--os_name", required=True)
+        parser.add_argument("--os_arch", required=True)
+        parser.add_argument("--bin_dir", required=True)
+        parser.add_argument("--include_dir", required=True)
+        parser.add_argument("--lib_base_dir", required=True)
+        parser.add_argument("--project_name", required=True)
+        parser.add_argument("--project_version", required=True)
+
+        self.__args = parser.parse_args()
+
+        self.__include_dir = Path(self.__args.include_dir)
+        self.__bin_dir = Path(self.__args.bin_dir)
+        self.__dst_dir = (
+            Path(self.__args.lib_base_dir)
+            / self.__args.project_name
+            / self.__args.project_version
+            / self.__args.os_name
+            / self.__args.os_arch
         )
 
-        dst_dir = None
-        if self.__build_type == "Release":
-            dst_dir = os.path.join(dst_os_name_dir, f"{self.__os_arch}_release")
-        else:
-            dst_dir = os.path.join(dst_os_name_dir, f"{self.__os_arch}")
 
-        # 删除软链接
-        remove_symlinks(self.__bin_dir)
-
-        # 删除目标路径
-        rm_dir(dst_dir)
-
-        # 拷贝include和bin目录
-        copy_dir(self.__include_dir, os.path.join(dst_dir, "include"))
-        copy_dir(self.__bin_dir, os.path.join(dst_dir, "lib"))
-
-
-# 程序入口
 if __name__ == "__main__":
-    postbuild = Postbuild()
-    postbuild.main(sys.argv)
+    h = PostbuildClass()
+    h.main()
