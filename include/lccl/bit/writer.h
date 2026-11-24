@@ -1,7 +1,6 @@
 ﻿#ifndef LCCL_INCLUDE_LCCL_BIT_WRITER_H_
 #define LCCL_INCLUDE_LCCL_BIT_WRITER_H_
 
-#include <functional>
 #include "lccl/bit/defines.h"
 
 LCCL_NAMESPACE_BEGIN
@@ -10,7 +9,7 @@ LCCL_BIT_NAMESPACE_BEGIN
 class BitWriter
 {
 public:
-    using ResizeFunc = std::function<uint8_t *(void *opaque, size_t size)>;
+    using ResizeFunc = void (*)(void *opaque, uint8_t *&data, size_t &size);
 
     struct Pointer
     {
@@ -66,8 +65,7 @@ public:
             return;
         }
 
-        data_ = resize_func_(resize_func_opaque_, new_size);
-        size_ = new_size;
+        resize_func_(resize_func_opaque_, data_, size_);
     }
 
     void WriteBits(uint64_t val, size_t bits)
