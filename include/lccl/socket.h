@@ -7,6 +7,8 @@
 #include <sys/socket.h>
 #endif
 
+#include <cstdint>
+#include <memory>
 #include "lccl.h"
 
 #define LCCL_SOCKET_NAMESPACE_BEGIN namespace skt {

@@ -1,4 +1,4 @@
-// Provides an efficient blocking version of moodycamel::ConcurrentQueue.
+﻿// Provides an efficient blocking version of moodycamel::ConcurrentQueue.
 // ©2015-2020 Cameron Desrochers. Distributed under the terms of the simplified
 // BSD license, available at the top of concurrentqueue.h.
 // Also dual-licensed under the Boost Software License (see LICENSE.md)

@@ -1,6 +1,7 @@
 ﻿#ifndef LCCL_INCLUDE_LCCL_FILE_H_
 #define LCCL_INCLUDE_LCCL_FILE_H_
 
+#include <memory>
 #include "lccl.h"
 
 #define LCCL_FILE_NAMESPACE_BEGIN namespace file {

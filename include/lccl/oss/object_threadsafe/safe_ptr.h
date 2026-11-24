@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef SAFE_PTR_H
 #define SAFE_PTR_H
 

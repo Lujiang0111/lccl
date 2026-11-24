@@ -2,6 +2,7 @@
 #define LCCL_INCLUDE_LCCL_EVENT_H_
 
 #include <functional>
+#include <memory>
 #include "lccl.h"
 
 #define LCCL_EVENT_NAMESPACE_BEGIN namespace evt {
