@@ -1,80 +1,108 @@
 ﻿#ifndef LCCL_INCLUDE_LCCL_BIT_WRITER_H_
 #define LCCL_INCLUDE_LCCL_BIT_WRITER_H_
 
+#include <functional>
 #include "lccl/bit/defines.h"
 
 LCCL_NAMESPACE_BEGIN
 LCCL_BIT_NAMESPACE_BEGIN
 
-class Writer
+class BitWriter
 {
 public:
-    // data为nullptr时不写入，只计算长度
-    Writer(uint8_t *data, ByteOrders byte_order = ByteOrders::kBe) :
-        data_(data),
-        byte_order_(byte_order),
-        curr_save_point_(data_)
+    using ResizeFunc = std::function<uint8_t *(void *opaque, size_t size)>;
+
+    struct Pointer
+    {
+        size_t offset = 0;
+        size_t bits = 0;
+    };
+
+public:
+    BitWriter(uint8_t *data, size_t size,
+        ResizeFunc resize_func, void *resize_func_opaque,
+        ByteOrders byte_order = ByteOrders::kBe) :
+        data_{ data },
+        size_{ size },
+        resize_func_{ resize_func },
+        resize_func_opaque_{ resize_func_opaque },
+        byte_order_{ byte_order }
     {
 
     }
 
-    virtual ~Writer()
-    {
+    virtual ~BitWriter() = default;
 
+    const Pointer &GetPointer() const
+    {
+        return pointer_;
     }
 
-    // bit
-    template <typename T>
-    void WriteBits(T val, size_t bits)
+    void SetPointer(const Pointer &pointer)
     {
-        if (!data_)
+        pointer_ = pointer;
+    }
+
+    size_t Size() const
+    {
+        return (0 == pointer_.bits) ? (pointer_.offset) : (pointer_.offset + 1);
+    }
+
+    void Skip(size_t bytes, size_t bits)
+    {
+        pointer_.offset += bytes;
+        pointer_.bits += bits;
+        pointer_.offset += (pointer_.bits >> 3);
+        pointer_.bits &= 0b111;
+
+        size_t new_size = Size();
+        if (new_size <= size_)
         {
-            SkipBits(bits);
             return;
         }
 
-        if (0 != curr_save_point_.bit_pos)
-        {
-            if (curr_save_point_.bit_pos + bits < 8)
-            {
-                uint8_t mask = kBitNegMasks[curr_save_point_.bit_pos] | kBitMasks[curr_save_point_.bit_pos + bits];
-                *curr_save_point_.ptr = (*curr_save_point_.ptr & mask) |
-                    ((val & kBitMasks[8 - bits]) << (8 - curr_save_point_.bit_pos - bits));
-                curr_save_point_.bit_pos += bits;
-                return;
-            }
-
-            *curr_save_point_.ptr = (*curr_save_point_.ptr & kBitNegMasks[curr_save_point_.bit_pos]) |
-                ((val >> (bits - (8 - curr_save_point_.bit_pos))) & kBitMasks[curr_save_point_.bit_pos]);
-
-            bits -= (8 - curr_save_point_.bit_pos);
-            curr_save_point_.bit_pos = 0;
-            ++curr_save_point_.ptr;
-        }
-
-        size_t bytes = bits >> 3;
-        bits &= 0b111;
-        int64_t bytes_val = val >> bits;
-
-        curr_save_point_.ptr += bytes;
-        for (uint8_t *ptr = curr_save_point_.ptr; bytes > 0; --bytes)
-        {
-            *--ptr = bytes_val & 0xFF;
-            bytes_val >>= 8;
-        }
-
-        if (bits > 0)
-        {
-            *curr_save_point_.ptr = (*curr_save_point_.ptr & kBitMasks[bits]) | ((val << (8 - bits)) & 0xFF);
-            curr_save_point_.bit_pos = bits;
-        }
+        data_ = resize_func_(resize_func_opaque_, new_size);
+        size_ = new_size;
     }
 
-    template <typename T>
-    void WriteUe(T val)
+    void WriteBits(uint64_t val, size_t bits)
+    {
+        if (0 == bits)
+        {
+            return;
+        }
+
+        Pointer start_pointer = pointer_;
+        Skip(0, bits);
+
+        if (start_pointer.bits + bits < 8)
+        {
+            data_[start_pointer.offset] &= (kNegBitMasks[start_pointer.bits] | kBitMasks[start_pointer.bits + bits]);
+            data_[start_pointer.offset] |= ((val & kBitMasks[8 - bits]) << (8 - start_pointer.bits - bits));
+            return;
+        }
+
+        if (0 != pointer_.bits)
+        {
+            data_[pointer_.offset] &= kBitMasks[pointer_.bits];
+            data_[pointer_.offset] |= ((val & kBitMasks[8 - pointer_.bits]) << (8 - pointer_.bits));
+            val >>= pointer_.bits;
+        }
+
+        for (size_t offset = pointer_.offset - 1; offset != start_pointer.offset; --offset)
+        {
+            data_[offset] = (val & 0xff);
+            val >>= 8;
+        }
+
+        data_[start_pointer.offset] &= kNegBitMasks[start_pointer.bits];
+        data_[start_pointer.offset] |= (val & kBitMasks[start_pointer.bits]);
+    }
+
+    void WriteUe(uint64_t val)
     {
         size_t bits = 0;
-        for (T tmp = val + 1; tmp > 0; tmp >>= 1)
+        for (uint64_t tmp = val + 1; 0 != tmp; tmp >>= 1)
         {
             ++bits;
         }
@@ -83,68 +111,57 @@ public:
         WriteBits(val + 1, bits);
     }
 
-    template <typename T>
-    void WriteSe(T val)
+    void WriteSe(int64_t val)
     {
-        WriteUe((val > 0) ? (2 * val - 1) : (-val * 2));
+        WriteUe((val > 0) ?
+            ((static_cast<uint64_t>(val) << 1) - 1) :
+            (static_cast<uint64_t>(-val) << 1));
     }
 
-    void WriteAlign()
+    void WriteAlign(uint64_t padding_bit)
     {
-        if (0 != curr_save_point_.bit_pos)
+        if (0 != pointer_.bits)
         {
-            if (data_)
+            if (0 == padding_bit)
             {
-                *curr_save_point_.ptr &= kBitNegMasks[curr_save_point_.bit_pos];
+                data_[pointer_.offset] &= kNegBitMasks[pointer_.bits];
             }
-
-            ++curr_save_point_.ptr;
-            curr_save_point_.bit_pos = 0;
+            else
+            {
+                data_[pointer_.offset] |= kBitMasks[pointer_.bits];
+            }
+            
+            ++pointer_.offset;
+            pointer_.bits = 0;
         }
     }
 
-    // byte
-    template <typename T>
-    void WriteByte(T val)
+    void Write1Byte(uint64_t val)
     {
-        if (!data_)
+        if (0 == pointer_.bits)
         {
-            ++curr_save_point_.ptr;
+            Skip(1, 0);
+            data_[pointer_.offset - 1] = val & 0xff;
             return;
         }
 
-        if (0 == curr_save_point_.bit_pos)
-        {
-            *curr_save_point_.ptr = val & 0xFF;
-            ++curr_save_point_.ptr;
-        }
-        else
-        {
-            WriteBits(val, 8);
-        }
+        WriteBits(val, 8);
     }
 
-    template <typename T>
-    void Write2Bytes(T val)
+    void Write2Bytes(uint64_t val)
     {
-        if (!data_)
-        {
-            curr_save_point_.ptr += 2;
-            return;
-        }
-
-        T low_val = val;
-        T high_val = val >> 8;
+        uint64_t low_val = val;
+        uint64_t high_val = val >> 8;
         switch (byte_order_)
         {
         case ByteOrders::kBe:
-            WriteByte(high_val);
-            WriteByte(low_val);
+            Write1Byte(high_val);
+            Write1Byte(low_val);
             break;
 
         case ByteOrders::kLe:
-            WriteByte(low_val);
-            WriteByte(high_val);
+            Write1Byte(low_val);
+            Write1Byte(high_val);
             break;
 
         default:
@@ -152,17 +169,10 @@ public:
         }
     }
 
-    template <typename T>
-    void Write4Bytes(T val)
+    void Write4Bytes(uint64_t val)
     {
-        if (!data_)
-        {
-            curr_save_point_.ptr += 4;
-            return;
-        }
-
-        T low_val = val;
-        T high_val = val >> 16;
+        uint64_t low_val = val;
+        uint64_t high_val = val >> 16;
         switch (byte_order_)
         {
         case ByteOrders::kBe:
@@ -180,17 +190,10 @@ public:
         }
     }
 
-    template <typename T>
-    void Write8Bytes(T val)
+    void Write8Bytes(uint64_t val)
     {
-        if (!data_)
-        {
-            curr_save_point_.ptr += 8;
-            return;
-        }
-
-        T low_val = val;
-        T high_val = val >> 32;
+        uint64_t low_val = val;
+        uint64_t high_val = val >> 32;
         switch (byte_order_)
         {
         case ByteOrders::kBe:
@@ -208,93 +211,30 @@ public:
         }
     }
 
-    // byte stream
     void WriteByteStream(const uint8_t *data, size_t size)
     {
-        if (!data_)
+        if (0 == pointer_.bits)
         {
-            curr_save_point_.ptr += size;
+            Skip(size, 0);
+            memcpy(data_ + pointer_.offset - size, data, size);
             return;
         }
 
-        if (0 == curr_save_point_.bit_pos)
+        for (; size > 0; --size)
         {
-            memcpy(curr_save_point_.ptr, data, size);
-            curr_save_point_.ptr += size;
+            WriteBits(data[0], 8);
+            ++data;
         }
-        else
-        {
-            for (; size > 0; --size)
-            {
-                WriteByte(*data);
-                ++data;
-            }
-            return;
-        }
-    }
-
-    void FillBytes(uint8_t val, size_t size)
-    {
-        if (!data_)
-        {
-            curr_save_point_.ptr += size;
-            return;
-        }
-
-        if (0 == curr_save_point_.bit_pos)
-        {
-            memset(curr_save_point_.ptr, val, size);
-            curr_save_point_.ptr += size;
-        }
-        else
-        {
-            for (; size > 0; --size)
-            {
-                WriteByte(val);
-            }
-            return;
-        }
-    }
-
-    // skip
-    void SkipBits(size_t bits)
-    {
-        curr_save_point_.bit_pos += bits;
-        curr_save_point_.ptr += (curr_save_point_.bit_pos >> 3);
-        curr_save_point_.bit_pos &= 0b111;
-    }
-
-    void SkipBytes(size_t bytes)
-    {
-        curr_save_point_.ptr += bytes;
-    }
-
-    // save/load
-    const SavePoint &Save() const
-    {
-        return curr_save_point_;
-    }
-
-    void Load(const SavePoint &save_point)
-    {
-        curr_save_point_ = save_point;
-    }
-
-    uint8_t *CurrPtr() const
-    {
-        return curr_save_point_.ptr;
-    }
-
-    size_t CurrSize() const
-    {
-        size_t offset = curr_save_point_.ptr - data_;
-        return (0 == curr_save_point_.bit_pos) ? (offset) : (offset + 1);
     }
 
 private:
     uint8_t *data_;
+    size_t size_;
+    ResizeFunc resize_func_;
+    void *resize_func_opaque_;
     ByteOrders byte_order_;
-    SavePoint curr_save_point_;
+
+    Pointer pointer_;
 };
 
 LCCL_BIT_NAMESPACE_END

@@ -1,6 +1,8 @@
 ﻿#ifndef LCCL_INCLUDE_LCCL_BIT_DEFINES_H_
 #define LCCL_INCLUDE_LCCL_BIT_DEFINES_H_
 
+#include <cstdint>
+#include <cstring>
 #include "lccl.h"
 
 #define LCCL_BIT_NAMESPACE_BEGIN namespace bit {
@@ -17,52 +19,28 @@ enum class ByteOrders
 
 constexpr uint8_t kBitMasks[] =
 {
-    0b11111111,
-    0b01111111,
-    0b00111111,
-    0b00011111,
-    0b00001111,
-    0b00000111,
-    0b00000011,
-    0b00000001,
+    0b11111111,     // 0
+    0b01111111,     // 1
+    0b00111111,     // 2
+    0b00011111,     // 3
+    0b00001111,     // 4
+    0b00000111,     // 5
+    0b00000011,     // 6
+    0b00000001,     // 7
+    0b00000000,     // 8
 };
 
-constexpr uint8_t kBitNegMasks[] =
+constexpr uint8_t kNegBitMasks[] =
 {
-    0b00000000,
-    0b10000000,
-    0b11000000,
-    0b11100000,
-    0b11110000,
-    0b11111000,
-    0b11111100,
-    0b11111110,
-    0b11111111,
-};
-
-constexpr uint8_t kBitPoints[] =
-{
-    0b10000000,
-    0b01000000,
-    0b00100000,
-    0b00010000,
-    0b00001000,
-    0b00000100,
-    0b00000010,
-    0b00000001,
-};
-
-struct SavePoint
-{
-    uint8_t *ptr;
-    size_t bit_pos;
-
-    SavePoint(uint8_t *i_ptr = nullptr, size_t i_bit_pos = 0) :
-        ptr(i_ptr),
-        bit_pos(i_bit_pos)
-    {
-
-    }
+    0b00000000,     // 0
+    0b10000000,     // 1
+    0b11000000,     // 2
+    0b11100000,     // 3
+    0b11110000,     // 4
+    0b11111000,     // 5
+    0b11111100,     // 6
+    0b11111110,     // 7
+    0b11111111,     // 8
 };
 
 LCCL_BIT_NAMESPACE_END

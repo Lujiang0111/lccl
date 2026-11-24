@@ -6,117 +6,162 @@
 LCCL_NAMESPACE_BEGIN
 LCCL_BIT_NAMESPACE_BEGIN
 
-class Reader
+class BitReader
 {
 public:
-    Reader(const uint8_t *data, ByteOrders byte_order = ByteOrders::kBe) :
-        data_(const_cast<uint8_t *>(data)),
-        byte_order_(byte_order),
-        curr_save_point_(data_)
+    struct Pointer
+    {
+        const uint8_t *ptr = nullptr;
+        size_t bits = 0;
+    };
+
+public:
+    BitReader(const uint8_t *data, size_t size, ByteOrders byte_order = ByteOrders::kBe) :
+        data_{ data },
+        end_{ data + size },
+        byte_order_{ byte_order },
+        pointer_{ data, 0 }
     {
 
     }
 
-    virtual ~Reader()
-    {
+    virtual ~BitReader() = default;
 
+    const Pointer &GetPointer() const
+    {
+        return pointer_;
     }
 
-    // bit
-    int64_t ReadBit()
+    void SetPointer(const Pointer &pointer)
     {
-        int64_t val = *curr_save_point_.ptr & kBitPoints[curr_save_point_.bit_pos];
-        SkipBits(1);
-        return (val) ? 1 : 0;
+        pointer_ = pointer;
     }
 
-    int64_t ReadBits(size_t bits)
+    size_t Size() const
     {
-        int64_t val = 0;
-        if (0 != curr_save_point_.bit_pos)
+        return (0 == pointer_.bits) ? (pointer_.ptr - data_) : (pointer_.ptr - data_ + 1);
+    }
+
+    bool Check() const
+    {
+        if (((pointer_.ptr >= data_) && (pointer_.ptr < end_)) ||
+            ((pointer_.ptr == end_) && (0 == pointer_.bits)))
         {
-            val = *curr_save_point_.ptr & kBitMasks[curr_save_point_.bit_pos];
-            if (curr_save_point_.bit_pos + bits < 8)
+            return true;
+        }
+
+        return false;
+    }
+
+    void Skip(size_t bytes, size_t bits)
+    {
+        pointer_.ptr += bytes;
+        pointer_.bits += bits;
+        pointer_.ptr += (pointer_.bits >> 3);
+        pointer_.bits &= 0b111;
+    }
+
+    uint64_t Read1Bit()
+    {
+        uint64_t val = (pointer_.ptr[0] >> (7 - pointer_.bits)) & 0b1;
+        Skip(0, 1);
+        return val;
+    }
+
+    uint64_t ReadBits(size_t bits)
+    {
+        uint64_t val = 0;
+        if (0 != pointer_.bits)
+        {
+            val = pointer_.ptr[0] & kBitMasks[pointer_.bits];
+            pointer_.bits += bits;
+            if (pointer_.bits < 8)
             {
-                val >>= (8 - curr_save_point_.bit_pos - bits);
-                curr_save_point_.bit_pos += bits;
+                val >>= (8 - pointer_.bits);
                 return val;
             }
 
-            bits -= (8 - curr_save_point_.bit_pos);
-            curr_save_point_.bit_pos = 0;
-            ++curr_save_point_.ptr;
+            bits = pointer_.bits - 8;
+            ++pointer_.ptr;
+            pointer_.bits = 0;
         }
 
         for (size_t bytes = bits >> 3; bytes > 0; --bytes)
         {
-            val = (val << 8) + *curr_save_point_.ptr;
-            ++curr_save_point_.ptr;
+            val = (val << 8) + pointer_.ptr[0];
+            ++pointer_.ptr;
         }
-        bits &= 0b111;
 
+        bits = bits & 0b111;
         if (bits > 0)
         {
-            val = (val << bits) + (*curr_save_point_.ptr >> (8 - bits));
-            curr_save_point_.bit_pos = bits;
+            val = (val << bits) + (pointer_.ptr[0] >> (8 - bits));
+            pointer_.bits = bits;
         }
 
         return val;
     }
 
-    int64_t ReadUe()
+    uint64_t ReadUe()
     {
-        int64_t leading_zero_bits = 0;
-        while (0 == ReadBit())
+        size_t leading_zero_bits = 0;
+        while (0 == Read1Bit())
         {
             ++leading_zero_bits;
+            if (!Check())
+            {
+                return 0;
+            }
         }
-        return (1LL << leading_zero_bits) + ReadBits(leading_zero_bits) - 1;
+
+        return (1ULL << leading_zero_bits) + ReadBits(leading_zero_bits) - 1;
     }
 
     int64_t ReadSe()
     {
-        int64_t val = ReadUe();
-        if (0 == val % 2)
+        uint64_t val = ReadUe();
+        if (0 == (val & 0b1))
         {
-            val = -val / 2;
+            return -static_cast<int64_t>(val >> 1);
         }
-        else
-        {
-            val = val / 2 + 1;
-        }
-        return val;
+
+        return static_cast<int64_t>(val >> 1) + 1;
     }
 
     void ReadAlign()
     {
-        if (0 != curr_save_point_.bit_pos)
+        if (0 != pointer_.bits)
         {
-            ++curr_save_point_.ptr;
-            curr_save_point_.bit_pos = 0;
+            ++pointer_.ptr;
+            pointer_.bits = 0;
         }
     }
 
-    // byte
-    int64_t ReadByte()
+    uint64_t Read1Byte()
     {
+        if (0 == pointer_.bits)
+        {
+            ++pointer_.ptr;
+            return *(pointer_.ptr - 1);
+        }
+
         return ReadBits(8);
     }
 
-    int64_t Read2Bytes()
+    uint64_t Read2Bytes()
     {
-        int64_t low_val = 0;
-        int64_t high_val = 0;
+        uint64_t low_val = 0;
+        uint64_t high_val = 0;
         switch (byte_order_)
         {
         case ByteOrders::kBe:
-            high_val = ReadByte();
-            low_val = ReadByte();
+            high_val = Read1Byte();
+            low_val = Read1Byte();
             break;
 
         case ByteOrders::kLe:
-            low_val = ReadByte();
-            high_val = ReadByte();
+            low_val = Read1Byte();
+            high_val = Read1Byte();
             break;
 
         default:
@@ -126,10 +171,10 @@ public:
         return (high_val << 8) + low_val;
     }
 
-    int64_t Read4Bytes()
+    uint64_t Read4Bytes()
     {
-        int64_t low_val = 0;
-        int64_t high_val = 0;
+        uint64_t low_val = 0;
+        uint64_t high_val = 0;
         switch (byte_order_)
         {
         case ByteOrders::kBe:
@@ -149,10 +194,10 @@ public:
         return (high_val << 16) + low_val;
     }
 
-    int64_t Read8Bytes()
+    uint64_t Read8Bytes()
     {
-        int64_t low_val = 0;
-        int64_t high_val = 0;
+        uint64_t low_val = 0;
+        uint64_t high_val = 0;
         switch (byte_order_)
         {
         case ByteOrders::kBe:
@@ -172,62 +217,27 @@ public:
         return (high_val << 32) + low_val;
     }
 
-    // byte stream
     void ReadByteStream(uint8_t *buf, size_t size)
     {
-        if (0 == curr_save_point_.bit_pos)
+        if (0 == pointer_.bits)
         {
-            memcpy(buf, curr_save_point_.ptr, size);
-            curr_save_point_.ptr += size;
+            memcpy(buf, pointer_.ptr, size);
+            pointer_.ptr += size;
+            return;
         }
-        else
+
+        for (; size > 0; --size)
         {
-            for (; size > 0; --size)
-            {
-                *buf++ = static_cast<uint8_t>(ReadByte());
-            }
+            *buf++ = static_cast<uint8_t>(ReadBits(8));
         }
-    }
-
-    // skip
-    void SkipBits(size_t bits)
-    {
-        curr_save_point_.bit_pos += bits;
-        curr_save_point_.ptr += (curr_save_point_.bit_pos >> 3);
-        curr_save_point_.bit_pos &= 0b111;
-    }
-
-    void SkipBytes(size_t bytes)
-    {
-        curr_save_point_.ptr += bytes;
-    }
-
-    // save/load
-    const SavePoint &Save() const
-    {
-        return curr_save_point_;
-    }
-
-    void Load(const SavePoint &save_point)
-    {
-        curr_save_point_ = save_point;
-    }
-
-    const uint8_t *CurrPtr() const
-    {
-        return curr_save_point_.ptr;
-    }
-
-    size_t CurrSize() const
-    {
-        size_t offset = curr_save_point_.ptr - data_;
-        return (0 == curr_save_point_.bit_pos) ? (offset) : (offset + 1);
     }
 
 private:
-    uint8_t *data_;
+    const uint8_t *data_;
+    const uint8_t *end_;
     ByteOrders byte_order_;
-    SavePoint curr_save_point_;
+
+    Pointer pointer_;
 };
 
 LCCL_BIT_NAMESPACE_END
