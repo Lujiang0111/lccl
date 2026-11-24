@@ -33,6 +33,11 @@ public:
 
     virtual ~BitWriter() = default;
 
+    uint8_t *GetData()
+    {
+        return data_;
+    }
+
     const Pointer &GetPointer() const
     {
         return pointer_;

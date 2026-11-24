@@ -27,6 +27,11 @@ public:
 
     virtual ~BitReader() = default;
 
+    const uint8_t *GetData() const
+    {
+        return data_;
+    }
+
     const Pointer &GetPointer() const
     {
         return pointer_;
