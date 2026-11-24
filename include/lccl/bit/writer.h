@@ -227,6 +227,21 @@ public:
         }
     }
 
+    void FillBytes(uint8_t val, size_t size)
+    {
+        if (0 == pointer_.bits)
+        {
+            Skip(size, 0);
+            memset(data_ + pointer_.offset - size, val, size);
+            return;
+        }
+
+        for (; size > 0; --size)
+        {
+            WriteBits(val, 8);
+        }
+    }
+
 private:
     uint8_t *data_;
     size_t size_;
