@@ -179,7 +179,9 @@ public:
         buffer_(static_cast<size_t>(1) << power),
         mask_(buffer_.size() - 1),
         head_(0),
-        tail_(0)
+        cached_tail_(0),
+        tail_(0),
+        cached_head_(0)
     {
 
     }
@@ -203,12 +205,15 @@ public:
     bool Pop(T &value, bool reset = false)
     {
         const size_t tail = tail_.load(std::memory_order_relaxed);
-        const size_t head = head_.load(std::memory_order_acquire);
 
-        // 队列为空
-        if (head == tail)
+        if (tail == cached_head_)
         {
-            return false;
+            cached_head_ = head_.load(std::memory_order_acquire);
+
+            if (tail == cached_head_)
+            {
+                return false;
+            }
         }
 
         T &item = buffer_[tail & mask_];
@@ -228,8 +233,8 @@ public:
     {
         const size_t tail = tail_.load(std::memory_order_relaxed);
         const size_t head = head_.load(std::memory_order_acquire);
+        cached_head_ = head;
 
-        // 队列为空
         if (head == tail)
         {
             return false;
@@ -238,7 +243,7 @@ public:
         for (size_t pos = tail; pos != head; ++pos)
         {
             T &item = buffer_[pos & mask_];
-            callback(std::move(item));
+            callback(item);
             if (reset)
             {
                 item = T{};
@@ -270,12 +275,14 @@ private:
     bool PushImpl(U &&value)
     {
         const size_t head = head_.load(std::memory_order_relaxed);
-        const size_t tail = tail_.load(std::memory_order_acquire);
 
-        // 队列已满
-        if (head - tail == buffer_.size())
+        if (head - cached_tail_ == buffer_.size())
         {
-            return false;
+            cached_tail_ = tail_.load(std::memory_order_acquire);
+            if (head - cached_tail_ == buffer_.size())
+            {
+                return false;
+            }
         }
 
         buffer_[head & mask_] = std::forward<U>(value);
@@ -286,8 +293,14 @@ private:
 private:
     std::vector<T> buffer_;
     const size_t mask_;
-    std::atomic<size_t> head_;
-    std::atomic<size_t> tail_;
+
+    // 生产者线程修改
+    alignas(64) std::atomic<size_t> head_;
+    size_t cached_tail_;
+
+    // 消费者线程修改
+    alignas(64) std::atomic<size_t> tail_;
+    size_t cached_head_;
 };
 
 LCCL_NAMESPACE_END
