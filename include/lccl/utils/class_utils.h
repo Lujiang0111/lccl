@@ -1,6 +1,7 @@
 ﻿#ifndef LCCL_INCLUDE_LCCL_UTILS_CLASS_UTILS_H_
 #define LCCL_INCLUDE_LCCL_UTILS_CLASS_UTILS_H_
 
+#include <memory>
 #include <utility>
 #include "lccl.h"
 
