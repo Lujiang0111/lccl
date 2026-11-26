@@ -1,11 +1,10 @@
 ﻿#ifndef LCCL_INCLUDE_LCCL_UTILS_RING_BUFFER_H_
 #define LCCL_INCLUDE_LCCL_UTILS_RING_BUFFER_H_
 
-#include <algorithm>
 #include <atomic>
 #include <cstddef>
-#include <functional>
 #include <vector>
+#include <utility>
 #include "lccl.h"
 
 LCCL_NAMESPACE_BEGIN
@@ -18,268 +17,277 @@ LCCL_NAMESPACE_BEGIN
 
 // 线程不安全版本
 // 输入冪次，size是2的冪
-template <typename T, typename Allocator = std::allocator<T>>
+template <typename T>
 class RingBuffer
 {
 public:
-    RingBuffer(size_t power) :
-        size_(static_cast<size_t>(2) << power),
-        size_mask_(size_ - 1),
-        buffer_(size_),
-        write_index_(0),
-        read_index_(0)
-    {
+    using container_type = std::vector<T>;
+    using reference = typename container_type::reference;
+    using const_reference = typename container_type::const_reference;
 
-    }
-
-    virtual ~RingBuffer()
+public:
+    explicit RingBuffer(size_t power) :
+        buffer_(static_cast<size_t>(1) << power),
+        mask_(buffer_.size() - 1),
+        head_(0),
+        size_(0)
     {
 
     }
 
     void Swap(RingBuffer &rhs)
     {
+        buffer_.swap(rhs.buffer_);
+        std::swap(mask_, rhs.mask_);
+        std::swap(head_, rhs.head_);
         std::swap(size_, rhs.size_);
-        std::swap(size_mask_, rhs.size_mask_);
-        std::swap(buffer_, rhs.buffer_);
-        std::swap(write_index_, rhs.write_index_);
-        std::swap(read_index_, rhs.read_index_);
     }
 
-    bool Push(const T &item)
+    bool PushBack(const T &value)
     {
-        size_t next_write_index = (write_index_ + 1) & size_mask_;
-
-        // 判断缓冲区是否已满
-        if (next_write_index == read_index_)
+        if (Full())
         {
             return false;
         }
 
-        buffer_[write_index_] = item;
-        write_index_ = next_write_index;
+        buffer_[(head_ + size_) & mask_] = value;
+        ++size_;
         return true;
     }
 
-    bool Pop(T &pop_item)
+    bool PushBack(T &&value)
     {
-        // 判断缓冲区是否是空的
-        if (read_index_ == write_index_)
+        if (Full())
         {
             return false;
         }
 
-        pop_item = buffer_[read_index_];
-        read_index_ = (read_index_ + 1) & size_mask_;
+        buffer_[(head_ + size_) & mask_] = std::move(value);
+        ++size_;
         return true;
     }
 
-    bool PopAndSetNull(T &pop_item)
+    bool PopFront(bool reset = false)
     {
-        // 判断缓冲区是否是空的
-        if (read_index_ == write_index_)
+        if (Empty())
         {
             return false;
         }
 
-        pop_item = buffer_[read_index_];
-        buffer_[read_index_] = nullptr;
-        read_index_ = (read_index_ + 1) & size_mask_;
+        if (reset)
+        {
+            buffer_[head_] = T{};
+        }
+
+        head_ = (head_ + 1) & mask_;
+        --size_;
         return true;
     }
 
-    bool PopBulk(const std::function<void(T &pop_item)> &callback)
+    template <typename Callback>
+    bool PopBulk(Callback &&callback, bool reset = false)
     {
-        if (read_index_ == write_index_)
+        if (Empty())
         {
             return false;
         }
 
-        while (read_index_ != write_index_)
+        for (size_t i = 0; i < size_; ++i)
         {
-            callback(buffer_[read_index_]);
-            read_index_ = (read_index_ + 1) & size_mask_;
+            reference value = buffer_[(head_ + i) & mask_];
+            callback(value);
+
+            if (reset)
+            {
+                value = T{};
+            }
         }
+
+        head_ = 0;
+        size_ = 0;
         return true;
     }
 
-    bool PopBulkAndSetNull(const std::function<void(T &pop_item)> &callback)
+    reference Front()
     {
-        if (read_index_ == write_index_)
-        {
-            return false;
-        }
+        return buffer_[head_];
+    }
 
-        while (read_index_ != write_index_)
-        {
-            callback(buffer_[read_index_]);
-            buffer_[read_index_] = nullptr;
-            read_index_ = (read_index_ + 1) & size_mask_;
-        }
-        return true;
+    const_reference Front() const
+    {
+        return buffer_[head_];
+    }
+
+    reference Back()
+    {
+        return buffer_[(head_ + size_ - 1) & mask_];
+    }
+
+    const_reference Back() const
+    {
+        return buffer_[(head_ + size_ - 1) & mask_];
     }
 
     bool Empty() const
     {
-        return (read_index_ == write_index_);
-    }
-
-    T &At(size_t index)
-    {
-        return buffer_[(read_index_ + index) & size_mask_];
-    }
-
-    size_t Size() const
-    {
-        if (write_index_ >= read_index_)
-        {
-            return write_index_ - read_index_;
-        }
-
-        return write_index_ + size_ - read_index_;
-    }
-
-private:
-    size_t size_;
-    size_t size_mask_;
-
-    std::vector<T, Allocator> buffer_;
-    size_t write_index_;
-    size_t read_index_;
-};
-
-// 单生产者单消费者无锁版本
-// 输入冪次，size是2的冪
-template <typename T, typename Allocator = std::allocator<T>>
-class LockFreeRingBuffer
-{
-public:
-    LockFreeRingBuffer(size_t power) :
-        size_(static_cast<size_t>(1) << power),
-        size_mask_(size_ -1),
-        buffer_(size_)
-    {
-        write_index_.store(0, std::memory_order_relaxed);
-        read_index_.store(0, std::memory_order_relaxed);
-    }
-
-    ~LockFreeRingBuffer() = default;
-
-    bool Push(const T &item)
-    {
-        size_t write_index = write_index_.load(std::memory_order_relaxed);
-        size_t next_write_index = (write_index + 1) & size_mask_;
-
-        // 判断缓冲区是否已满
-        if (next_write_index == read_index_.load(std::memory_order_acquire))
-        {
-            return false;
-        }
-
-        buffer_[write_index] = item;
-        write_index_.store(next_write_index, std::memory_order_release);
-        return true;
-    }
-
-    bool Pop(T &pop_item)
-    {
-        size_t read_index = read_index_.load(std::memory_order_relaxed);
-
-        // 判断缓冲区是否是空的
-        if (read_index == write_index_.load(std::memory_order_acquire))
-        {
-            return false;
-        }
-
-        pop_item = buffer_[read_index];
-        read_index_.store((read_index + 1) & size_mask_, std::memory_order_release);
-        return true;
-    }
-
-    bool PopAndSetNull(T &pop_item)
-    {
-        size_t read_index = read_index_.load(std::memory_order_relaxed);
-
-        // 判断缓冲区是否是空的
-        if (read_index == write_index_.load(std::memory_order_acquire))
-        {
-            return false;
-        }
-
-        pop_item = buffer_[read_index];
-        buffer_[read_index] = T{};
-        read_index_.store((read_index + 1) & size_mask_, std::memory_order_release);
-        return true;
-    }
-
-    bool PopBulk(const std::function<void(T &pop_item)> &callback)
-    {
-        size_t read_index = read_index_.load(std::memory_order_relaxed);
-        size_t write_index = write_index_.load(std::memory_order_acquire);
-        if (read_index == write_index)
-        {
-            return false;
-        }
-
-        while (read_index != write_index)
-        {
-            callback(buffer_[read_index]);
-            read_index = (read_index + 1) & size_mask_;
-        }
-        read_index_.store(read_index, std::memory_order_release);
-        return true;
-    }
-
-    bool PopBulkAndSetNull(const std::function<void(T &pop_item)> &callback)
-    {
-        size_t read_index = read_index_.load(std::memory_order_relaxed);
-        size_t write_index = write_index_.load(std::memory_order_acquire);
-        if (read_index == write_index)
-        {
-            return false;
-        }
-
-        while (read_index != write_index)
-        {
-            callback(buffer_[read_index]);
-            buffer_[read_index] = T{};
-            read_index = (read_index + 1) & size_mask_;
-        }
-        read_index_.store(read_index, std::memory_order_release);
-        return true;
-    }
-
-    bool Empty() const
-    {
-        return (read_index_.load(std::memory_order_relaxed) ==
-            write_index_.load(std::memory_order_acquire));
+        return size_ == 0;
     }
 
     bool Full() const
     {
-        return ((write_index_.load(std::memory_order_relaxed) + 1) & size_mask_) ==
-            read_index_.load(std::memory_order_acquire);
+        return size_ == buffer_.size();
     }
 
     size_t Size() const
     {
-        size_t read_index = read_index_.load(std::memory_order_acquire);
-        size_t write_index = write_index_.load(std::memory_order_acquire);
+        return size_;
+    }
 
-        if (write_index >= read_index)
+    size_t Capacity() const
+    {
+        return buffer_.size();
+    }
+
+    void Clear(bool reset = false)
+    {
+        if (reset)
         {
-            return write_index - read_index;
+            for (size_t i = 0; i < size_; ++i)
+            {
+                buffer_[(head_ + i) & mask_] = T{};
+            }
         }
-        return write_index + size_ - read_index;
+
+        head_ = 0;
+        size_ = 0;
     }
 
 private:
+    std::vector<T> buffer_;
+    size_t mask_;
+    size_t head_;
     size_t size_;
-    size_t size_mask_;
+};
 
-    std::vector<T, Allocator> buffer_;
-    std::atomic<size_t> write_index_;
-    std::atomic<size_t> read_index_;
+// 单生产者单消费者无锁版本
+// 输入冪次，size是2的冪
+template <typename T>
+class LockFreeRingBuffer
+{
+public:
+    explicit LockFreeRingBuffer(size_t power) :
+        buffer_(static_cast<size_t>(1) << power),
+        mask_(buffer_.size() - 1),
+        head_(0),
+        tail_(0)
+    {
+
+    }
+
+    LockFreeRingBuffer(const LockFreeRingBuffer &) = delete;
+    LockFreeRingBuffer &operator=(const LockFreeRingBuffer &) = delete;
+
+    // 仅生产者线程调用
+    bool Push(const T &value)
+    {
+        return PushImpl(value);
+    }
+
+    // 支持移动语义
+    bool Push(T &&value)
+    {
+        return PushImpl(std::move(value));
+    }
+
+    // 仅消费者线程调用
+    bool Pop(T &value, bool reset = false)
+    {
+        const size_t tail = tail_.load(std::memory_order_relaxed);
+        const size_t head = head_.load(std::memory_order_acquire);
+
+        // 队列为空
+        if (head == tail)
+        {
+            return false;
+        }
+
+        T &item = buffer_[tail & mask_];
+        value = std::move(item);
+        if (reset)
+        {
+            item = T{};
+        }
+
+        tail_.store(tail + 1, std::memory_order_release);
+        return true;
+    }
+
+    // 仅消费者线程调用
+    template <typename Callback>
+    bool PopBulk(Callback &&callback, bool reset = false)
+    {
+        const size_t tail = tail_.load(std::memory_order_relaxed);
+        const size_t head = head_.load(std::memory_order_acquire);
+
+        // 队列为空
+        if (head == tail)
+        {
+            return false;
+        }
+
+        for (size_t pos = tail; pos != head; ++pos)
+        {
+            T &item = buffer_[pos & mask_];
+            callback(std::move(item));
+            if (reset)
+            {
+                item = T{};
+            }
+        }
+
+        tail_.store(head, std::memory_order_release);
+        return true;
+    }
+
+    // 仅生产者线程调用
+    bool Full() const
+    {
+        const size_t head = head_.load(std::memory_order_relaxed);
+        const size_t tail = tail_.load(std::memory_order_acquire);
+        return head - tail == buffer_.size();
+    }
+
+    // 仅消费者线程调用
+    bool Empty() const
+    {
+        const size_t tail = tail_.load(std::memory_order_relaxed);
+        const size_t head = head_.load(std::memory_order_acquire);
+        return head == tail;
+    }
+
+private:
+    template <typename U>
+    bool PushImpl(U &&value)
+    {
+        const size_t head = head_.load(std::memory_order_relaxed);
+        const size_t tail = tail_.load(std::memory_order_acquire);
+
+        // 队列已满
+        if (head - tail == buffer_.size())
+        {
+            return false;
+        }
+
+        buffer_[head & mask_] = std::forward<U>(value);
+        head_.store(head + 1, std::memory_order_release);
+        return true;
+    }
+
+private:
+    std::vector<T> buffer_;
+    const size_t mask_;
+    std::atomic<size_t> head_;
+    std::atomic<size_t> tail_;
 };
 
 LCCL_NAMESPACE_END
