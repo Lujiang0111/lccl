@@ -29,10 +29,10 @@ void RingBufferThread(TestRingBufferCtx *test_ctx)
     {
         {
             std::lock_guard<std::mutex> lock(test_ctx->ring_buffer_mutex);
-            test_ctx->ring_buffer.PopBulkAndSetNull([&out](std::shared_ptr<ItemCtx> &item)
+            test_ctx->ring_buffer.PopBulk([&out](std::shared_ptr<ItemCtx> &item)
                 {
                     out.push_back(item);
-                });
+                }, true);
         }
 
         while (!out.empty())
@@ -52,10 +52,10 @@ void LockFreeRingBufferThread(TestRingBufferCtx *test_ctx)
     while (app_running)
     {
         {
-            test_ctx->lock_free_ring_buffer.PopBulkAndSetNull([&out](std::shared_ptr<ItemCtx> &item)
+            test_ctx->lock_free_ring_buffer.PopBulk([&out](std::shared_ptr<ItemCtx> &item)
                 {
                     out.push_back(item);
-                });
+                }, true);
         }
 
         while (!out.empty())
@@ -84,7 +84,7 @@ void TestRingBuffer(int argc, char **argv)
 
         {
             std::lock_guard<std::mutex> lock(test_ctx.ring_buffer_mutex);
-            test_ctx.ring_buffer.Push(item);
+            test_ctx.ring_buffer.PushBack(item);
         }
 
         test_ctx.lock_free_ring_buffer.Push(item);
