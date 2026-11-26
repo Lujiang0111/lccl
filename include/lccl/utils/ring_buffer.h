@@ -295,11 +295,11 @@ private:
     const size_t mask_;
 
     // 生产者线程修改
-    alignas(64) std::atomic<size_t> head_;
+    std::atomic<size_t> head_;
     size_t cached_tail_;
 
     // 消费者线程修改
-    alignas(64) std::atomic<size_t> tail_;
+    std::atomic<size_t> tail_;
     size_t cached_head_;
 };
 
