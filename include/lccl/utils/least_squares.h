@@ -20,7 +20,11 @@ public:
     // 尾部添加数据
     void PushBack(int64_t x, int64_t y)
     {
-        x_.PushBack(x);
+        while (!x_.PushBack(x))
+        {
+            PopFront();
+        }
+        y_.PushBack(y);
 
         const size_t n = x_.Size();
         if (1 == n)
@@ -127,6 +131,16 @@ public:
         x_.Clear();
         y_.Clear();
         Reset();
+    }
+
+    const RingBuffer<int64_t> &GetX() const
+    {
+        return x_;
+    }
+
+    const RingBuffer<int64_t> &GetY() const
+    {
+        return y_;
     }
 
 private:
